@@ -10,9 +10,9 @@ def card():
 def test_constructor():
     c = Card('HEART', '2')
     assert isinstance(c, Card), "Constructor did not create Card object"
-    with pytest.raises(Card.InvalidCardException):
+    with pytest.raises(ValueError):
         Card('HELLO', '5')
-    with pytest.raises(Card.InvalidCardException):
+    with pytest.raises(ValueError):
         Card('DIAMOND', 'JOKER')
 
 
@@ -26,7 +26,7 @@ def test_get_rank(card):
 
 def test___eq__(card):
     c1 = Card('CLUB', 'JACK')
-    assert card != c1, "Returns True for card with different suit"
+    assert card == c1, "Does not return true for card of different suit but same rank"
 
     c2 = Card('SPADE', '5')
     assert card != c2, "Returns True for card with different rank"
@@ -43,7 +43,8 @@ def test___lt__(card):
     assert c2 > card, "Card with greater rank is not considered greater"
 
     c3 = Card('CLUB', 'JACK')
-    assert card < c3 is False and card > c3 is False, "Card with equal rank considered lesser or greater"
+    assert (card < c3) is False, "Card with equal rank considered greater"
+    assert (card > c3) is False, "Card with equal rank considered lesser"
 
 
 
