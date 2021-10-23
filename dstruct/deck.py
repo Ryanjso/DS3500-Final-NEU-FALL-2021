@@ -22,10 +22,10 @@ class Deck:
 
     def draw(self, num=1):
         """Draws the next n cards from the top of the deck and returns a list of cards"""
-        if self.size() < num:
-            raise ValueError("Cannot draw " + str(num) + " cards from deck of size " + str(self.size()))
         if num < 1:
             raise ValueError("Cannot draw less than 1 card from deck")
+        if self.size() < num:
+            raise ValueError("Cannot draw " + str(num) + " cards from deck of size " + str(self.size()))
         cards_drawn = []
         for _ in range(num):
             cards_drawn.append(self._cards.pop())

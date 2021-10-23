@@ -8,6 +8,13 @@ def deck():
     return Deck()
 
 
+def test_constructor():
+    d = Deck()
+    assert isinstance(d, Deck)
+    assert d.size() == 52
+    assert isinstance(d.draw()[0], Card)
+
+
 def test_size(deck):
     assert deck.size() == 52, "Returns incorrect size"
 
