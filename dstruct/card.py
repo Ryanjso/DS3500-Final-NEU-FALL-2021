@@ -4,14 +4,17 @@ class Card:
     suits = ('SPADE', 'CLUB', 'HEART', 'DIAMOND')
     ranks = ('1', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'JACK', 'QUEEN', 'KING', 'ACE')
 
+    class InvalidCardException(Exception):
+        pass
+
     def __init__(self, suit: str, rank: str):
 
         if suit.upper() not in Card.suits:
-            raise ValueError('Invalid card suit.')
+            raise Card.InvalidCardException('Invalid card suit: ' + suit)
         self._suit = suit
 
         if rank.upper() not in Card.ranks:
-            raise ValueError('Invalid card rank.')
+            raise Card.InvalidCardException('Invalid card rank: ' + rank)
         self._rank = rank
 
     def get_suit(self):
