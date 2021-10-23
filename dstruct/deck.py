@@ -10,6 +10,7 @@ class Deck:
         for rank in Card.ranks:
             for suit in Card.suits:
                 self.cards.add(Card(suit, rank))
+        random.shuffle(self._cards)
 
     def shuffle(self):
         """Randomly shuffle the deck"""
