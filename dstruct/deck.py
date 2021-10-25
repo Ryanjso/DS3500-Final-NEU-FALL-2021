@@ -25,7 +25,8 @@ class Deck:
         if num < 1:
             raise ValueError("Cannot draw less than 1 card from deck")
         if self.size() < num:
-            raise ValueError("Cannot draw " + str(num) + " cards from deck of size " + str(self.size()))
+            raise ValueError("Cannot draw " + str(num) +
+                             " cards from deck of size " + str(self.size()))
         cards_drawn = []
         for _ in range(num):
             cards_drawn.append(self._cards.pop())
