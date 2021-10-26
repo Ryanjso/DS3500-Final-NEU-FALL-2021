@@ -21,4 +21,6 @@ class Hand:
 
     def best_hand(self):
         # https://github.com/msaindon/deuces
+        # Fork of deuces for Python 3: https://stackoverflow.com/questions/40337024/import-error-python-no-module-named-card
+        # https://github.com/ihendley/treys
         pass
