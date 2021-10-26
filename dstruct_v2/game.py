@@ -49,11 +49,19 @@ class Game:
         for player in self.players:
             # Each player gets two cards from the deck
             player.cards += self.deck.draw(2)
+            player.show_cards() 
+
+        self.bet()
+        self.flop()
+        
+    def flop(self):
+        # Have players draw two cards
+        self.table += self.deck.draw(3)
+        for player in self.players:
+            # Each player can see their cards
             player.show_cards()
             # Each player can see what their best hand is
             player.best_hand(self.table)
-
-        self.bet()
 
     def bet(self):
         pass
