@@ -70,7 +70,7 @@ class Player:
         hand = self.convert_hand()
 
         # Convert board to be compatible with treys
-        board = [cd.new('9h'), cd.new('9c'), cd.new('8c')]
+        board = []
         for card in table_cards:
             symbol = Player.suit_map[card.get_suit()]
             if len(card.get_rank()) == 1:
