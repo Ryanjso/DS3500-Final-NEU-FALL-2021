@@ -40,7 +40,7 @@ class Player:
         self.stack -= num
         return self.stack
 
-    def convert_hand(self):
+    def _convert_hand(self):
         """ Make our Card data compatible with the format in the treys module """
         hand = []
         for card in self.cards:
@@ -55,7 +55,7 @@ class Player:
 
     def show_cards(self):
         """ Prints the cards to the console """
-        hand = self.convert_hand()
+        hand = self._convert_hand()
         print(f"{self.username} current cards:")
         cd.print_pretty_cards(hand)
         print(self.cards)
@@ -67,7 +67,7 @@ class Player:
         # https://github.com/ihendley/treys
 
         # Convert hand to be compatible with treys
-        hand = self.convert_hand()
+        hand = self._convert_hand()
 
         # Convert board to be compatible with treys
         board = []
