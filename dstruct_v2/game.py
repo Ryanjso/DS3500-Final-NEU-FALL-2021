@@ -1,11 +1,12 @@
 from dstruct.deck import Deck
+from collections import deque
 
 
 class Game:
 
     def __init__(self, ante, big_blind=20, small_blind=10):
         # List of players in this game
-        self.players = []
+        self.players = deque([])
         # Cards on the table
         self.table = []
         # Players cannot join when a game is in progress
@@ -15,8 +16,8 @@ class Game:
         # Assign Big Blind and Small Blind
         self.big_blind = big_blind
         self.small_blind = small_blind
-        # Index of player for Big Blind
-        self.player_big_blind = 0
+        # Index of player with button (Dealer)
+        self.button = 0
         # The pot
         self.pot = 0
         self.deck = Deck()
@@ -27,6 +28,7 @@ class Game:
     def start_game(self):
         if len(self.players) > 1:
             self.session = True
+            self.set_blinds()
             self.pre_flop()
         else:
             print("Not enough players")
@@ -41,19 +43,25 @@ class Game:
         else:
             print("This game is in progress")
 
-    def blinds(self):
+    def set_blinds(self):
+        # TODO - take chips from BB and SB and add to pot
         pass
+
+    def rotate_blinds(self) -> None:
+        """Rotate players so BB and SB change
+        """
+        self.players.rotate(1)
 
     def pre_flop(self):
         # Have players draw two cards
         for player in self.players:
             # Each player gets two cards from the deck
             player.cards += self.deck.draw(2)
-            player.show_cards() 
+            player.show_cards()
 
         self.bet()
         self.flop()
-        
+
     def flop(self):
         # Have players draw two cards
         self.table += self.deck.draw(3)
@@ -65,5 +73,3 @@ class Game:
 
     def bet(self):
         pass
-
-
