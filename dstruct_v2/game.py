@@ -20,6 +20,11 @@ class Game:
         # The pot
         self.pot = 0
         self.deck = Deck()
+        self.current = len(self.players) - 1
+        self.bet = self.big_blind
+        self.players[self.player_big_blind].add_bet(self.big_blind)
+        self.players[self.player_big_blind + 1].add_bet(self.small_blind)
+
 
     def get_players(self):
         print(self.players)
@@ -63,7 +68,49 @@ class Game:
             # Each player can see what their best hand is
             player.best_hand(self.table)
 
+    def _update_current(self):
+        num_active = sum([p.is_active() for p in self.players])
+        if num_active < 2:
+            raise Exception("There must be at least two active players")
+        while self.players[self.current].is_active() is False:
+            self.current -= 1
+            if self.current < 0:
+                self.current = len(self.players) - 1
+
+    def _is_hand_end(self):
+        return all([p.get_bet() == self.bet for p in self.players if p.is_active()])
+
+    def fold(self):
+        if self._is_hand_end():
+            raise Exception("Cannot perform action after end of hand")
+        p = self.players[self.current]
+        p.subtract_chips(self.chips[self.current])
+        p.make_inactive()
+        self._update_current()
+
+    def call(self):
+        if self._is_hand_end():
+            raise Exception("Cannot perform action after end of hand")
+        p = self.players[self.current]
+        if p.get_stack() < self.bet:
+            raise Exception("Bet amount greater than player's stack.")
+        p.add_bet(self.bet)
+        self._update_current()
+
+    def raise_bet(self, amount):
+        if self._is_hand_end():
+            raise Exception("Cannot perform action after end of hand")
+        p = self.players[self.current]
+        if amount < 2 * self.bet:
+            raise ValueError("Amount raised must be at least twice current bet.")
+        if p.get_stack < amount:
+            raise Exception("Raise amount greater than player's stack.")
+        self.bet = amount
+        p.add_bet(self.bet)
+        self._update_current()
+
     def bet(self):
         pass
+
 
 

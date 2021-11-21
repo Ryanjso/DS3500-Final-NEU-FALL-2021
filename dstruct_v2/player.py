@@ -14,6 +14,8 @@ class Player:
         self.stack = stack
         self.username = username
         self.cards = []
+        self.active = True
+        self.bet = 0
 
     def __repr__(self):
         return f"{self.username} : {self.stack}"
@@ -40,6 +42,14 @@ class Player:
         self.stack -= num
         return self.stack
 
+    def add_bet(self, num: int):
+        if num <= 0 or num > self.stack:
+            raise ValueError("Invalid bet amount")
+        self.bet = num
+
+    def get_bet(self):
+        return self.bet
+
     def _convert_hand(self):
         """ Make our Card data compatible with the format in the treys module """
         hand = []
@@ -59,6 +69,17 @@ class Player:
         print(f"{self.username} current cards:")
         cd.print_pretty_cards(hand)
         print(self.cards)
+
+    def is_active(self):
+        """ Check if player is active  """
+        return self.active
+
+    def make_inactive(self):
+        """ Make a player inactive """
+        self.active = False
+
+    def get_stack(self):
+        """ Get the current number of chips """
 
     def best_hand(self, table_cards):
         """ Get the Best Hand """
