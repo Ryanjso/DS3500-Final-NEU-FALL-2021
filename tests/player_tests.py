@@ -4,7 +4,7 @@ Created on Thu Oct 28 15:01:28 2021
 
 @author: renem
 """
-from dstruct_v2.player import Player
+from dstruct.player import Player
 
 import pytest
 

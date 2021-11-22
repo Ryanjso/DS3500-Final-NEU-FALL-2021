@@ -1,4 +1,5 @@
 class Card:
+
     """A simple playing card class"""
 
     suits = ('SPADE', 'CLUB', 'HEART', 'DIAMOND')
@@ -30,3 +31,5 @@ class Card:
         """Card of lesser rank should be considered lesser"""
         return Card.ranks.index(self.get_rank()) < Card.ranks.index(other.get_rank())
 
+    def __repr__(self):
+        return f"{self._suit} {self._rank}"

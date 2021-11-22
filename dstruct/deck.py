@@ -12,6 +12,12 @@ class Deck:
                 self._cards.append(Card(suit, rank))
         random.shuffle(self._cards)
 
+    def get_cards(self):
+        return self._cards
+
+    def __repr__(self):
+        return [str(card) for card in self._cards]
+
     def shuffle(self):
         """Randomly shuffle the deck"""
         random.shuffle(self._cards)
@@ -24,9 +30,8 @@ class Deck:
         """Draws the next n cards from the top of the deck and returns a list of cards"""
         if num < 1:
             raise ValueError("Cannot draw less than 1 card from deck")
-        if self.size() < num:
-            raise ValueError("Cannot draw " + str(num) +
-                             " cards from deck of size " + str(self.size()))
+        if len(self._cards) < num:
+            raise ValueError(f"Cannot draw {num} cards from deck of size {self.size()}")
         cards_drawn = []
         for _ in range(num):
             cards_drawn.append(self._cards.pop())
