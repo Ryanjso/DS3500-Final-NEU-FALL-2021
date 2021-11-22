@@ -53,7 +53,8 @@ class Game:
 
     def set_blinds(self):
         # TODO - take chips from BB and SB and add to pot
-        pass
+        for player in self.players:
+            self.pot += player.get_bet()
 
     def rotate_blinds(self) -> None:
         """Rotate players so BB and SB change
