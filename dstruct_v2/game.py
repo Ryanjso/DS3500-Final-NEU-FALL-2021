@@ -25,8 +25,8 @@ class Game:
         self.current = len(self.players) - 1
         # The current bet amount for the table
         self.bet = self.big_blind
-        self.players[self.player_big_blind].add_bet(self.big_blind)
-        self.players[self.player_big_blind + 1].add_bet(self.small_blind)
+        self.players[self.player_big_blind].increase_bet(self.big_blind)
+        self.players[self.player_big_blind + 1].increase_bet(self.small_blind)
 
 
     def get_players(self):
