@@ -1,4 +1,3 @@
-
 from dstruct.game import Game
 from dstruct.player import Player
 
