@@ -1,11 +1,12 @@
 from dstruct.deck import Deck
+from collections import deque
 
 
 class Game:
 
     def __init__(self, ante, big_blind=20, small_blind=10):
         # List of players in this game
-        self.players = []
+        self.players = deque([])
         # Cards on the table
         self.table = []
         # Players cannot join when a game is in progress
@@ -15,12 +16,14 @@ class Game:
         # Assign Big Blind and Small Blind
         self.big_blind = big_blind
         self.small_blind = small_blind
-        # Index of player for Big Blind
-        self.player_big_blind = 0
+        # Index of player with button (Dealer)
+        self.button = 0
         # The pot
         self.pot = 0
         self.deck = Deck()
+        # The index of the current player who's turn it is - they must call, raise, or fold
         self.current = len(self.players) - 1
+        # The current bet amount for the table
         self.bet = self.big_blind
         self.players[self.player_big_blind].add_bet(self.big_blind)
         self.players[self.player_big_blind + 1].add_bet(self.small_blind)
@@ -32,6 +35,7 @@ class Game:
     def start_game(self):
         if len(self.players) > 1:
             self.session = True
+            self.set_blinds()
             self.pre_flop()
         else:
             print("Not enough players")
@@ -46,19 +50,25 @@ class Game:
         else:
             print("This game is in progress")
 
-    def blinds(self):
+    def set_blinds(self):
+        # TODO - take chips from BB and SB and add to pot
         pass
+
+    def rotate_blinds(self) -> None:
+        """Rotate players so BB and SB change
+        """
+        self.players.rotate(1)
 
     def pre_flop(self):
         # Have players draw two cards
         for player in self.players:
             # Each player gets two cards from the deck
             player.cards += self.deck.draw(2)
-            player.show_cards() 
+            player.show_cards()
 
         self.bet()
         self.flop()
-        
+
     def flop(self):
         # Have players draw two cards
         self.table += self.deck.draw(3)
@@ -69,6 +79,7 @@ class Game:
             player.best_hand(self.table)
 
     def _update_current(self):
+        """ Update the current player to the next active player in the table"""
         num_active = sum([p.is_active() for p in self.players])
         if num_active < 2:
             raise Exception("There must be at least two active players")
@@ -77,40 +88,41 @@ class Game:
             if self.current < 0:
                 self.current = len(self.players) - 1
 
-    def _is_hand_end(self):
-        return all([p.get_bet() == self.bet for p in self.players if p.is_active()])
+    def _is_hand_end(self) -> bool:
+        """ Check if every active player has agreed to the current bet or is all in"""
+        return all([p.get_bet() == self.bet or p.get_bet() == p.get_stack() for p in self.players if p.is_active()])
 
     def fold(self):
-        if self._is_hand_end():
-            raise Exception("Cannot perform action after end of hand")
+        """ The current player folds - they become inactive for the rest of the game and lose the chips they've bet"""
         p = self.players[self.current]
         p.subtract_chips(self.chips[self.current])
         p.make_inactive()
         self._update_current()
+        if self._is_hand_end():
+            self.start_next_round()
 
     def call(self):
-        if self._is_hand_end():
-            raise Exception("Cannot perform action after end of hand")
+        """ The player agrees to the current bet amount """
         p = self.players[self.current]
         if p.get_stack() < self.bet:
-            raise Exception("Bet amount greater than player's stack.")
-        p.add_bet(self.bet)
+            raise Exception("Bet amount cannot be greater than player's stack.")
+        p.increase_bet(self.bet)
         self._update_current()
-
-    def raise_bet(self, amount):
         if self._is_hand_end():
-            raise Exception("Cannot perform action after end of hand")
+            self.start_next_round()
+
+    def raise_bet(self, new_amount: int):
+        """ Rase"""
         p = self.players[self.current]
-        if amount < 2 * self.bet:
+        if new_amount < 2 * self.bet:
             raise ValueError("Amount raised must be at least twice current bet.")
-        if p.get_stack < amount:
-            raise Exception("Raise amount greater than player's stack.")
-        self.bet = amount
-        p.add_bet(self.bet)
+        if p.get_stack < new_amount:
+            raise Exception("Raise amount cannot be greater than player's stack.")
+        self.bet = new_amount
+        p.increase_bet(self.bet)
         self._update_current()
+        if self._is_hand_end():
+            self.start_next_round()
 
-    def bet(self):
+    def start_next_round(self):
         pass
-
-
-

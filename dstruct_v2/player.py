@@ -42,10 +42,11 @@ class Player:
         self.stack -= num
         return self.stack
 
-    def add_bet(self, num: int):
-        if num <= 0 or num > self.stack:
+    def increase_bet(self, new_amount: int):
+        """ increase player's bet to the new amount """
+        if new_amount <= 0 or new_amount > self.stack:
             raise ValueError("Invalid bet amount")
-        self.bet = num
+        self.bet = new_amount
 
     def get_bet(self):
         return self.bet
