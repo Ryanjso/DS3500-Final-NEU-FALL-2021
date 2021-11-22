@@ -1,5 +1,6 @@
 from dstruct.deck import Deck
 from collections import deque
+from player import Player
 
 
 class Game:
@@ -78,6 +79,10 @@ class Game:
             # Each player can see what their best hand is
             player.best_hand(self.table)
 
+    def get_current(self) -> Player:
+        """ Get the current player """
+        return self.players[self.current]
+
     def _update_current(self):
         """ Update the current player to the next active player in the table"""
         num_active = sum([p.is_active() for p in self.players])
@@ -94,17 +99,18 @@ class Game:
 
     def fold(self):
         """ The current player folds - they become inactive for the rest of the game and lose the chips they've bet"""
-        p = self.players[self.current]
+        p = self.get_current()
         p.make_inactive()
         self._update_current()
         if self._is_hand_end():
             self.start_next_round()
 
     def call(self):
-        """ The player agrees to the current bet amount """
-        p = self.players[self.current]
-        if p.get_stack() >= self.bet - p.bet:
-            p.subtract_chips(self.bet - p.bet)
+        """ The current player agrees to the current bet amount """
+        p = self.get_current()
+        added_chips = self.bet - p.bet
+        if p.get_stack() >= added_chips:
+            p.subtract_chips(added_chips)
             p.increase_bet(self.bet)
         # TODO - determine what to do if player does not have enough chips to match bet
         self._update_current()
@@ -113,17 +119,17 @@ class Game:
 
     def raise_bet(self, new_amount: int):
         """ Raise bet amount """
-        p = self.players[self.current]
+        p = self.get_current()
         if new_amount < 2 * self.bet:
             raise ValueError("Amount raised must be at least twice current bet.")
-        if p.get_stack < new_amount:
+        added_chips = new_amount - p.bet
+        if p.get_stack() >= added_chips:
+            p.subtract_chips(added_chips)
+            self.bet = new_amount
+            p.increase_bet(self.bet)
+            self._update_current()
+        else:
             raise Exception("Raise amount cannot be greater than player's stack.")
-        self.bet = new_amount
-        p.subtract_chips(self.bet - p.bet)
-        p.increase_bet(self.bet)
-        self._update_current()
-        if self._is_hand_end():
-            self.start_next_round()
 
     def start_next_round(self):
         pass
