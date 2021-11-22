@@ -44,8 +44,12 @@ class Player:
 
     def increase_bet(self, new_amount: int):
         """ increase player's bet to the new amount """
-        if new_amount <= 0 or new_amount > self.stack:
-            raise ValueError("Invalid bet amount")
+        assert new_amount > 0
+        if new_amount <= self.bet:
+            raise ValueError("Cannot raise to an amount less than or equal to than current bet")
+        added_chips = new_amount - self.bet
+        if added_chips > self.stack:
+            raise ValueError("Cannot add more chips to pot than player has")
         self.bet = new_amount
 
     def get_bet(self):

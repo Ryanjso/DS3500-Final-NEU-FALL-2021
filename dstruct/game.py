@@ -68,7 +68,6 @@ class Game:
             player.cards += self.deck.draw(2)
             player.show_cards()
 
-        self.bet()
         self.flop()
 
     def flop(self):
@@ -108,12 +107,12 @@ class Game:
 
     def call(self):
         """ The current player agrees to the current bet amount """
+        # TODO - determine what to do if player does not have enough chips to match current bet
         p = self.get_current()
+        p.increase_bet(self.bet)
         added_chips = self.bet - p.bet
-        if p.get_stack() >= added_chips:
-            p.subtract_chips(added_chips)
-            p.increase_bet(self.bet)
-        # TODO - determine what to do if player does not have enough chips to match bet
+        p.subtract_chips(added_chips)
+        self.pot += added_chips
         self._update_current()
         if self._is_hand_end():
             self.start_next_round()
@@ -121,16 +120,15 @@ class Game:
     def raise_bet(self, new_amount: int):
         """ Raise bet amount """
         p = self.get_current()
+        assert p.get_bet() == self.bet
         if new_amount < 2 * self.bet:
             raise ValueError("Amount raised must be at least twice current bet.")
+        p.increase_bet(new_amount)
+        self.bet = new_amount
         added_chips = new_amount - p.bet
-        if p.get_stack() >= added_chips:
-            p.subtract_chips(added_chips)
-            self.bet = new_amount
-            p.increase_bet(self.bet)
-            self._update_current()
-        else:
-            raise Exception("Raise amount cannot be greater than player's stack.")
+        p.subtract_chips(added_chips)
+        self.pot += added_chips
+        self._update_current()
 
     def start_next_round(self):
         pass
