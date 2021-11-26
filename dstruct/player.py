@@ -1,10 +1,8 @@
-from treys import Card as cd
 from treys import Evaluator
+from treys import Card as cd
 
 
 class Player:
-    suit_map = {'SPADE': 's', 'CLUB': 'c', 'HEART': 'h', 'DIAMOND': 'd'}
-    rank_map = {'10': 'T', 'JACK': 'J', 'QUEEN': 'Q', 'KING': 'K', 'ACE': 'A'}
 
     def __init__(self, stack: int, username: str):
         """Person who is at the table
@@ -14,7 +12,7 @@ class Player:
         self.stack = stack
         self.username = username
         self.cards = []
-        self.active = True
+        self.active = False
         self.bet = 0
 
     def __repr__(self):
@@ -56,23 +54,9 @@ class Player:
     def get_bet(self):
         return self.bet
 
-    def _convert_hand(self):
-        """ Make our Card data compatible with the format in the treys module """
-        hand = []
-        for card in self.cards:
-            if len(card.get_rank()) == 1:
-                symbol = card.get_rank()
-            else:
-                symbol = Player.rank_map[card.get_rank()]
-            symbol += Player.suit_map[card.get_suit()]
-            print('here', symbol)
-            hand.append(cd.new(symbol))
-
-        return hand
-
     def show_cards(self):
         """ Prints the cards to the console """
-        hand = self._convert_hand()
+        hand = [card.to_treys() for card in self.cards]
         print(f"{self.username} current cards:")
         cd.print_pretty_cards(hand)
         print(self.cards)
@@ -80,6 +64,10 @@ class Player:
     def is_active(self):
         """ Check if player is active  """
         return self.active
+
+    def make_active(self):
+        """ Make a player active """
+        self.active = True
 
     def make_inactive(self):
         """ Make a player inactive """
@@ -95,17 +83,10 @@ class Player:
         # https://github.com/ihendley/treys
 
         # Convert hand to be compatible with treys
-        hand = self._convert_hand()
+        hand = [card.to_treys() for card in self.cards]
 
         # Convert board to be compatible with treys
-        board = []
-        for card in table_cards:
-            symbol = Player.suit_map[card.get_suit()]
-            if len(card.get_rank()) == 1:
-                symbol += card.get_rank()
-            else:
-                symbol += Player.rank_map[card.get_rank()]
-            board.append(cd.new(symbol))
+        board = [card.to_treys() for card in table_cards]
 
         # Evaluate the score and the corresponding score class
         evaluator = Evaluator()

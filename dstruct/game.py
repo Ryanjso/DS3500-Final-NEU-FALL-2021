@@ -14,7 +14,7 @@ class Game:
         self.session = False
         # Ante for game
         self.ante = ante
-        # Assign Big Blind and Small Blind
+        # Assign Big Blind and Small Blind amounts
         self.big_blind = big_blind
         self.small_blind = small_blind
         # Index of player with button (Dealer)
@@ -23,7 +23,7 @@ class Game:
         self.pot = 0
         self.deck = Deck()
         # The index of the current player who's turn it is - they must call, raise, or fold
-        self.current = 1
+        self.current = self.button
         # The current bet amount for the table
         self.bet = self.big_blind
 
@@ -42,6 +42,7 @@ class Game:
         if not self.session:
             # Add player to a game
             self.players.append(player)
+            player.make_active()
             # If the table hit 10 players automatically start the game
             if len(self.players) == 9:
                 self.start_game()
@@ -50,21 +51,22 @@ class Game:
 
     def set_blinds(self):
         """ Set the small and big blinds """
-
         # SB is player after dealer - dealer is index  0 so SB is index 1
-        small_blind_player = self.players[1]
+        # initially the current player is the dealer (button) so the current must be updated
+        self._update_current_player()
+        small_blind_player = self.get_current_player()
         small_blind_player.increase_bet(self.small_blind)
         small_blind_player.subtract_chips(self.small_blind)
         self.pot += self.small_blind
 
         # BB is next player after SB - could be dealer if two player game
-        self._update_current()
+        self._update_current_player()
         big_blind_player = self.get_current_player()
         big_blind_player.increase_bet(self.big_blind)
         big_blind_player.subtract_chips(self.big_blind)
         self.pot += self.big_blind
         self.bet = self.big_blind
-        self._update_current()
+        self._update_current_player()
 
     def rotate_blinds(self) -> None:
         """Rotate players so BB and SB change
@@ -93,7 +95,7 @@ class Game:
         """ Get the current player """
         return self.players[self.current]
 
-    def _update_current(self):
+    def _update_current_player(self):
         """ Update the current player to the next active player in the table"""
         num_active = sum([p.is_active() for p in self.players])
         if num_active < 2:
@@ -111,7 +113,7 @@ class Game:
         """ The current player folds - they become inactive for the rest of the game and lose the chips they've bet"""
         p = self.get_current_player()
         p.make_inactive()
-        self._update_current()
+        self._update_current_player()
         if self._is_hand_end():
             self.start_next_round()
 
@@ -119,11 +121,11 @@ class Game:
         """ The current player agrees to the current bet amount """
         # TODO - determine what to do if player does not have enough chips to match current bet
         p = self.get_current_player()
-        p.increase_bet(self.bet)
         added_chips = self.bet - p.bet
+        p.increase_bet(self.bet)
         p.subtract_chips(added_chips)
         self.pot += added_chips
-        self._update_current()
+        self._update_current_player()
         if self._is_hand_end():
             self.start_next_round()
 
@@ -134,12 +136,12 @@ class Game:
         if new_amount < 2 * self.bet:
             raise ValueError(
                 "Amount raised must be at least twice current bet.")
-        p.increase_bet(new_amount)
         self.bet = new_amount
         added_chips = new_amount - p.bet
+        p.increase_bet(new_amount)
         p.subtract_chips(added_chips)
         self.pot += added_chips
-        self._update_current()
+        self._update_current_player()
 
     def start_next_round(self):
         pass

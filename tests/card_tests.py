@@ -4,45 +4,45 @@ import pytest
 
 @pytest.fixture
 def card():
-    return Card('SPADE', 'JACK')
+    return Card('s', 'J')
 
 
 def test_constructor():
-    c = Card('HEART', '2')
+    c = Card('h', '2')
     assert isinstance(c, Card), "Constructor did not create Card object"
     with pytest.raises(ValueError):
-        Card('HELLO', '5')
+        Card('H', '5')
     with pytest.raises(ValueError):
-        Card('DIAMOND', 'JOKER')
+        Card('d', 'JOKER')
 
 
 def test_get_suit(card):
-    assert card.get_suit() == 'SPADE', "Did not return correct suit"
+    assert card.get_suit() == 's', "Did not return correct suit"
 
 
 def test_get_rank(card):
-    assert card.get_rank() == 'JACK', "Did not return correct ranks"
+    assert card.get_rank() == 'J', "Did not return correct ranks"
 
 
 def test___eq__(card):
-    c1 = Card('CLUB', 'JACK')
+    c1 = Card('c', 'J')
     assert card == c1, "Does not return true for card of different suit but same rank"
 
-    c2 = Card('SPADE', '5')
+    c2 = Card('s', '5')
     assert card != c2, "Returns True for card with different rank"
 
-    c3 = Card('SPADE', 'JACK')
+    c3 = Card('s', 'J')
     assert card == c3, "Does not return true for identical cards"
 
 
 def test___lt__(card):
-    c1 = Card('HEART', '10')
+    c1 = Card('h', 'T')
     assert c1 < card, "Card with lesser rank is not considered lesser"
 
-    c2 = Card('SPADE', 'QUEEN')
+    c2 = Card('s', 'Q')
     assert c2 > card, "Card with greater rank is not considered greater"
 
-    c3 = Card('CLUB', 'JACK')
+    c3 = Card('c', 'J')
     assert (card < c3) is False, "Card with equal rank considered greater"
     assert (card > c3) is False, "Card with equal rank considered lesser"
 
