@@ -1,7 +1,8 @@
 from deck import Deck
-from collections import deque
 from player import Player
 
+
+# move self.session to table
 
 class Game:
 
@@ -12,11 +13,12 @@ class Game:
         self.table = []
         # Players cannot join when a game is in progress
         self.session = False
-        # # Assign Big Blind and Small Blind amounts
-        # self.big_blind = big_blind
-        # self.small_blind = small_blind
-        # # Index of player with button (Dealer)
-        # self.button = 0
+        # Assign Big Blind and Small Blind amounts
+        self.big_blind = big_blind
+        self.small_blind = small_blind
+        # Index of player with button (Dealer)
+        # this never changes, as players are just rotated each game
+        self.button = 0
         # The pot
         self.pot = 0
         self.deck = Deck()
@@ -28,24 +30,27 @@ class Game:
     def get_players(self):
         print(self.players)
 
-    def start_game(self):
-        if len(self.players) > 1:
-            self.session = True
-            self.set_blinds()
-            self.pre_flop()
-        else:
-            print("Not enough players")
+# this >1 can be moved to the table class, only start game
+# if table has more than 1 player sitting
+    # def start_game(self):
+    #     if len(self.players) > 1:
+    #         self.session = True
+    #         self.set_blinds()
+    #         self.pre_flop()
+    #     else:
+    #         print("Not enough players")
 
-    def join_game(self, player):
-        if not self.session:
-            # Add player to a game
-            self.players.append(player)
-            player.make_active()
-            # If the table hit 10 players automatically start the game
-            if len(self.players) == 9:
-                self.start_game()
-        else:
-            print("This game is in progress")
+# don't need to join game, but do need to call player.make_active() for each player
+    # def join_game(self, player):
+    #     if not self.session:
+    #         # Add player to a game
+    #         self.players.append(player)
+    #         player.make_active()
+    #         # If the table hit 10 players automatically start the game
+    #         if len(self.players) == 9:
+    #             self.start_game()
+    #     else:
+    #         print("This game is in progress")
 
     def set_blinds(self):
         """ Set the small and big blinds """
@@ -65,11 +70,6 @@ class Game:
         self.pot += self.big_blind
         self.bet = self.big_blind
         self._update_current_player()
-
-    def rotate_blinds(self) -> None:
-        """Rotate players so BB and SB change
-        """
-        self.players.rotate(1)
 
     def pre_flop(self):
         # Have players draw two cards
