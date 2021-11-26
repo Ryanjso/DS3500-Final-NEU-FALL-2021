@@ -46,7 +46,8 @@ class Player:
         """ increase player's bet to the new amount """
         assert new_amount > 0
         if new_amount <= self.bet:
-            raise ValueError("Cannot raise to an amount less than or equal to than current bet")
+            raise ValueError(
+                "Cannot raise to an amount less than or equal to than current bet")
         added_chips = new_amount - self.bet
         if added_chips > self.stack:
             raise ValueError("Cannot add more chips than a player has")
@@ -64,6 +65,7 @@ class Player:
             else:
                 symbol = Player.rank_map[card.get_rank()]
             symbol += Player.suit_map[card.get_suit()]
+            print('here', symbol)
             hand.append(cd.new(symbol))
 
         return hand
@@ -109,4 +111,5 @@ class Player:
         evaluator = Evaluator()
         score = evaluator.evaluate(board, hand)
         score_class = evaluator.get_rank_class(score)
-        print(f"{self.username} best hand rank: {evaluator.class_to_string(score_class)}")
+        print(
+            f"{self.username} best hand rank: {evaluator.class_to_string(score_class)}")

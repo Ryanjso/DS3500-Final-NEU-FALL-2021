@@ -1,5 +1,5 @@
-from dstruct.game import Game
-from dstruct.player import Player
+from game import Game
+from player import Player
 
 
 def main():

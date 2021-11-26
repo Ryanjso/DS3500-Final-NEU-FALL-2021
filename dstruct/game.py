@@ -1,4 +1,4 @@
-from dstruct.deck import Deck
+from deck import Deck
 from collections import deque
 from player import Player
 
@@ -132,7 +132,8 @@ class Game:
         p = self.get_current_player()
         assert p.get_bet() == self.bet
         if new_amount < 2 * self.bet:
-            raise ValueError("Amount raised must be at least twice current bet.")
+            raise ValueError(
+                "Amount raised must be at least twice current bet.")
         p.increase_bet(new_amount)
         self.bet = new_amount
         added_chips = new_amount - p.bet
