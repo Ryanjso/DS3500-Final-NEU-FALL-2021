@@ -12,7 +12,7 @@ class Player:
         self.stack = stack
         self.username = username
         self.cards = []
-        self.active = True
+        self.active = False
         self.bet = 0
 
     def __repr__(self):
@@ -63,6 +63,10 @@ class Player:
     def is_active(self):
         """ Check if player is active  """
         return self.active
+
+    def make_active(self):
+        """ Make a player active """
+        self.active = True
 
     def make_inactive(self):
         """ Make a player inactive """
