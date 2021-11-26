@@ -5,26 +5,24 @@ from player import Player
 
 class Game:
 
-    def __init__(self, ante, big_blind=20, small_blind=10):
+    def __init__(self, players, big_blind=20, small_blind=10):
         # List of players in this game
-        self.players = deque([])
+        self.players = players
         # Cards on the table
         self.table = []
         # Players cannot join when a game is in progress
         self.session = False
-        # Ante for game
-        self.ante = ante
-        # Assign Big Blind and Small Blind amounts
-        self.big_blind = big_blind
-        self.small_blind = small_blind
-        # Index of player with button (Dealer)
-        self.button = 0
+        # # Assign Big Blind and Small Blind amounts
+        # self.big_blind = big_blind
+        # self.small_blind = small_blind
+        # # Index of player with button (Dealer)
+        # self.button = 0
         # The pot
         self.pot = 0
         self.deck = Deck()
         # The index of the current player who's turn it is - they must call, raise, or fold
         self.current = self.button
-        # The current bet amount for the table
+        # The current bet amount for the game
         self.bet = self.big_blind
 
     def get_players(self):
@@ -83,6 +81,7 @@ class Game:
         self.flop()
 
     def flop(self):
+        print('flopping')
         # Have players draw two cards
         self.table += self.deck.draw(3)
         for player in self.players:
