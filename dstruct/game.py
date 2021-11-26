@@ -58,13 +58,13 @@ class Game:
         self.pot += self.small_blind
 
         # BB is next player after SB - could be dealer if two player game
-        self._update_current()
+        self._update_current_player()
         big_blind_player = self.get_current_player()
         big_blind_player.increase_bet(self.big_blind)
         big_blind_player.subtract_chips(self.big_blind)
         self.pot += self.big_blind
         self.bet = self.big_blind
-        self._update_current()
+        self._update_current_player()
 
     def rotate_blinds(self) -> None:
         """Rotate players so BB and SB change
@@ -93,7 +93,7 @@ class Game:
         """ Get the current player """
         return self.players[self.current]
 
-    def _update_current(self):
+    def _update_current_player(self):
         """ Update the current player to the next active player in the table"""
         num_active = sum([p.is_active() for p in self.players])
         if num_active < 2:
@@ -111,7 +111,7 @@ class Game:
         """ The current player folds - they become inactive for the rest of the game and lose the chips they've bet"""
         p = self.get_current_player()
         p.make_inactive()
-        self._update_current()
+        self._update_current_player()
         if self._is_hand_end():
             self.start_next_round()
 
@@ -119,11 +119,11 @@ class Game:
         """ The current player agrees to the current bet amount """
         # TODO - determine what to do if player does not have enough chips to match current bet
         p = self.get_current_player()
-        p.increase_bet(self.bet)
         added_chips = self.bet - p.bet
+        p.increase_bet(self.bet)
         p.subtract_chips(added_chips)
         self.pot += added_chips
-        self._update_current()
+        self._update_current_player()
         if self._is_hand_end():
             self.start_next_round()
 
@@ -138,7 +138,7 @@ class Game:
         added_chips = new_amount - p.bet
         p.subtract_chips(added_chips)
         self.pot += added_chips
-        self._update_current()
+        self._update_current_player()
 
     def start_next_round(self):
         pass
