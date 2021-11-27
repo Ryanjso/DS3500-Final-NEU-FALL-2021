@@ -59,6 +59,7 @@ class Game:
         self._update_current_player()
 
         print(f'Blinds set, pot is  {self.pot}')
+        print(f'Blinds set, bet is  {self.bet}')
 
     def draw_player_cards(self):
         # Have players draw two cards
@@ -91,7 +92,7 @@ class Game:
 
     def _is_hand_end(self) -> bool:
         """ Check if every active player has agreed to the current bet or is all in"""
-        return all([p.get_bet() == self.bet or p.get_bet() == p.get_stack() for p in self.players if p.is_active()])
+        return self.game_over and all([p.get_bet() == self.bet or p.get_bet() == p.get_stack() for p in self.players if p.is_active()])
 
     def fold(self):
         """ The current player folds - they become inactive for the rest of the game and lose the chips they've bet"""
@@ -107,17 +108,17 @@ class Game:
         p = self.get_current_player()
         added_chips = self.bet - p.get_bet()
         p.increase_bet(self.bet)
-        print(f'{p.username} has called current bet and added {added_chips}')
+        print(f'{p.username} has added {added_chips} to call current bet of {self.pot}')
 
     def raise_bet(self, new_amount: int):
         """ Raise bet amount """
         p = self.get_current_player()
-        assert p.get_bet() == self.bet
+        print(f'{p.username} is attempting to bet total of {new_amount}')
+        print(f'but current bet is  {self.bet}')
         if new_amount < self.bet:
             raise ValueError(
                 "Amount raised must be at least current bet.")
         self.bet = new_amount
-        added_chips = new_amount - p.bet
         p.increase_bet(new_amount)
         print(f'{p.username} has rasied to {new_amount}')
 
@@ -125,16 +126,19 @@ class Game:
         options = ["fold", "call", "raise_bet"]
         choice = random.choice(options)
 
-        # dont let fold if can check
+        # TODO - dont let fold if can check
         if choice == "fold":
-            self.fold()
+            if self.bet - self.get_current_player().get_bet() == 0:
+                self.call()
+            else:
+                self.fold()
 
         elif choice == "call":
             self.call()
 
         elif choice == "raise_bet":
             # get random amount up to half of player stack
-            bet = random.randint(self.bet - self.get_current_player().get_bet() + 1,
+            bet = random.randint(self.bet + 1,
                                  self.get_current_player().get_stack())
             self.raise_bet(bet)
 
@@ -145,6 +149,11 @@ class Game:
             return
 
         print('betting round is starting', self._is_hand_end())
+        for player in self.players:
+            if self.game_over:
+                return
+            self.decision()
+
         while not self._is_hand_end():
             self.decision()
 

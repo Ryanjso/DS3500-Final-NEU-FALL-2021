@@ -46,6 +46,8 @@ class Player:
         return self.stack
 
     def increase_bet(self, new_amount: int):
+        print(f'current bet: {self.bet}')
+        print(f'new bet: {new_amount}')
         """ increase player's bet to the new amount """
         assert new_amount > 0
         if new_amount <= self.bet:
@@ -96,6 +98,7 @@ class Player:
 
         # Evaluate the score and the corresponding score class
         evaluator = Evaluator()
+        print(board, hand)
         score = evaluator.evaluate(board, hand)
         score_class = evaluator.get_rank_class(score)
         print(
