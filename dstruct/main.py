@@ -6,7 +6,7 @@ from engine import Engine
 def main():
 
     poker = Engine()
-    poker.go(5)
+    poker.go(1)
 
     # game = Game(ante=10)
 

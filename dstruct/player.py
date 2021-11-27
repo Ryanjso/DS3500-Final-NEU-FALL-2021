@@ -54,7 +54,7 @@ class Player:
         added_chips = new_amount - self.bet
         if added_chips > self.stack:
             raise ValueError("Cannot add more chips than a player has")
-        self._subtract_chips(new_amount)
+        self._subtract_chips(added_chips)
         self.bet = new_amount
 
     def get_bet(self):
@@ -100,6 +100,7 @@ class Player:
         score_class = evaluator.get_rank_class(score)
         print(
             f"{self.username} best hand rank: {evaluator.class_to_string(score_class)}")
+        return score
 
     def clear_hand(self):
         self.cards = []

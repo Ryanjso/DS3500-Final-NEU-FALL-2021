@@ -24,8 +24,14 @@ class Engine:
 
         while counter < runs:
 
+            print('============================')
+            print('Game ' + str(counter) + ' Started')
+
             # Creates a new Game
             self.table.create_game()
+
+            # set blinds
+            self.table.current_game.set_blinds()
 
             # assign player cards
             self.table.current_game.draw_player_cards()
@@ -46,3 +52,5 @@ class Engine:
             self.table.current_game.payout()
 
             counter += 1
+
+            print('Game ' + str(counter) + ' Over')
