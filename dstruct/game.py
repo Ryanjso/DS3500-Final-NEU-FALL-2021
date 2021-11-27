@@ -25,6 +25,8 @@ class Game:
         self.current: int = self.button
         # Represents if a Game is Over (ie only one player left or no more betting)
         self.game_over: bool = False
+        # The current bet amount for the table
+        self.bet = self.big_blind
 
         self._ready_players()
 
@@ -78,7 +80,7 @@ class Game:
 
     def _update_current_player(self):
         """ Update the current player to the next active player in the table"""
-        if self.current is 0:
+        if self.current == 0:
             self.current = 1
         else:
             self.current = 0
@@ -91,6 +93,7 @@ class Game:
     def decision(self, current: int, raise_to: int):
         options = ["fold", "call", "raise_bet"]
         choice = random.choice(options)
+        print(choice)
         # dont let fold if can check
         if choice == "fold":
             return self.fold()
@@ -129,6 +132,8 @@ class Game:
             for winner in active:
                 winner.add_chips(payout)
 
+        self.pot = 0
+
     def betting(self):
         if self.game_over:
             return
@@ -149,6 +154,7 @@ class Game:
             counter += 1
 
         self.bet = 0
+        print(current_bets)
         self.pot += sum(current_bets)
         first.subtract_chips(current_bets[0])
         second.subtract_chips(current_bets[1])

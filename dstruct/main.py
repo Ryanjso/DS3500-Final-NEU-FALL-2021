@@ -1,20 +1,24 @@
 from game import Game
 from player import Player
+from engine import Engine
 
 
 def main():
 
-    game = Game(ante=10)
+    poker = Engine()
+    poker.go(5)
 
-    player1 = Player(100, "Dwight")
-    player2 = Player(100, "Michael")
+    # game = Game(ante=10)
 
-    game.join_game(player1)
-    game.join_game(player2)
+    # player1 = Player(100, "Dwight")
+    # player2 = Player(100, "Michael")
 
-    print(game.get_players())
+    # game.join_game(player1)
+    # game.join_game(player2)
 
-    game.start_game()
+    # print(game.get_players())
+
+    # game.start_game()
 
 
 # Press the green button in the gutter to run the script.

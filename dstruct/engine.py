@@ -10,8 +10,8 @@ class Engine:
         # New table
         self.table = Table(big_blind=20, small_blind=10)
 
-        player1 = Player(100, "Dwight")
-        player2 = Player(100, "Michael")
+        player1 = Player(500, "Dwight")
+        player2 = Player(500, "Michael")
 
         # Add players to table
         self.table.sit(player1)
@@ -44,3 +44,5 @@ class Engine:
 
             # winner decision + payout
             self.table.current_game.payout()
+
+            counter += 1
