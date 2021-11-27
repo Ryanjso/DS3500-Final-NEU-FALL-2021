@@ -1,46 +1,40 @@
 from deck import Deck
+from card import Card
 from player import Player
 import random
+from typing import List
 
-
-# move self.session to table
 
 class Game:
 
     def __init__(self, players, big_blind=20, small_blind=10):
         # List of players in this game
-        self.players = players
+        self.players: List[Player] = players
         # Cards on the table
-        self.community_cards = []
+        self.community_cards: List[Card] = []
         # Assign Big Blind and Small Blind amounts
-        self.big_blind = big_blind
-        self.small_blind = small_blind
+        self.big_blind: int = big_blind
+        self.small_blind: int = small_blind
         # Index of player with button (Dealer)
         # this never changes, as players are just rotated each game
-        self.button = 0
+        self.button: int = 0
         # The pot
-        self.pot = 0
-        self.deck = Deck()
+        self.pot: int = 0
+        self.deck: Deck = Deck()
         # The index of the current player who's turn it is - they must call, raise, or fold
-        self.current = self.button
+        self.current: int = self.button
         # Represents if a Game is Over (ie only one player left or no more betting)
-        self.game_over = False
+        self.game_over: bool = False
+
+        self._ready_players()
 
     def get_players(self):
         print(self.players)
 
-
-# don't need to join game, but do need to call player.make_active() for each player
-    # def join_game(self, player):
-    #     if not self.session:
-    #         # Add player to a game
-    #         self.players.append(player)
-    #         player.make_active()
-    #         # If the table hit 10 players automatically start the game
-    #         if len(self.players) == 9:
-    #             self.start_game()
-    #     else:
-    #         print("This game is in progress")
+    def _ready_players(self):
+        for player in self.players:
+            player.clear_hand()
+            player.make_active()
 
     def set_blinds(self):
         """ Set the small and big blinds """
@@ -91,6 +85,7 @@ class Game:
 
     def fold(self):
         """ The current player folds - they become inactive for the rest of the game and lose the chips they've bet"""
+        self.get_current_player().make_inactive()
         self.game_over = True
 
     def decision(self, current: int, raise_to: int):
@@ -124,12 +119,20 @@ class Game:
 
     # payout shouldnt recieve winners, but check if both are active
     # and if so figure out who has best hand
-    def payout(self, *winners: Player):
-        payout = self.pot/len(winners)
-        for winner in winners:
-            winner.add_chips(payout)
+    def payout(self):
+        # count num of active players
+        active = [player for player in self.players if player.is_active()]
+        if len(active) == 1:
+            active[0].add_chips(self.pot)
+        else:
+            payout = self.pot/len(active)
+            for winner in active:
+                winner.add_chips(payout)
 
     def betting(self):
+        if self.game_over:
+            return
+
         first = self.get_current_player()
 
         current_bets = [self.decision(0, self.bet), -1]

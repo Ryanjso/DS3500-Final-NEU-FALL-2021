@@ -1,7 +1,6 @@
 from typing import List
 from treys import Evaluator
 from treys import Card as cd
-
 from card import Card
 
 
@@ -15,7 +14,7 @@ class Player:
         self.stack = stack
         self.username = username
         self.cards: List[Card] = []
-        # self.active = False
+        self.active = False
         self.bet = 0
 
     def __repr__(self):
@@ -67,17 +66,17 @@ class Player:
         cd.print_pretty_cards(hand)
         print(self.cards)
 
-    # def is_active(self):
-    #     """ Check if player is active  """
-    #     return self.active
+    def is_active(self):
+        """ Check if player is active  """
+        return self.active
 
-    # def make_active(self):
-    #     """ Make a player active """
-    #     self.active = True
+    def make_active(self):
+        """ Make a player active """
+        self.active = True
 
-    # def make_inactive(self):
-    #     """ Make a player inactive """
-    #     self.active = False
+    def make_inactive(self):
+        """ Make a player inactive """
+        self.active = False
 
     def best_hand(self, table_cards):
         """ Get the Best Hand """
@@ -97,3 +96,6 @@ class Player:
         score_class = evaluator.get_rank_class(score)
         print(
             f"{self.username} best hand rank: {evaluator.class_to_string(score_class)}")
+
+    def clear_hand(self):
+        self.cards = []
