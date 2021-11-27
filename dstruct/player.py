@@ -33,7 +33,7 @@ class Player:
         self.stack += num
         return self.stack
 
-    def subtract_chips(self, num: int):
+    def _subtract_chips(self, num: int):
         """removes chips from players total
         Args:
             num (int): number of chips to remove
@@ -54,10 +54,14 @@ class Player:
         added_chips = new_amount - self.bet
         if added_chips > self.stack:
             raise ValueError("Cannot add more chips than a player has")
+        self._subtract_chips(new_amount)
         self.bet = new_amount
 
     def get_bet(self):
         return self.bet
+
+    def clear_bet(self):
+        self.bet = 0
 
     def show_cards(self):
         """ Prints the cards to the console """
