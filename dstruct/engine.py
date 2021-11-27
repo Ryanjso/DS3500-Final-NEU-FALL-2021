@@ -1,23 +1,46 @@
-# while game is not over
+from player import Player
+from table import Table
 
-# do something with players and cards here
 
-# assign dealer/blinds
+class Engine:
 
-# preflop betting
+    # Constructs new Engine
+    def __init__(self) -> None:
 
-# flop cards
+        # New table
+        self.table = Table(big_blind=20, small_blind=10)
 
-# post flop betting round
+        player1 = Player(100, "Dwight")
+        player2 = Player(100, "Michael")
 
-# turn cards
+        # Add players to table
+        self.table.sit(player1)
+        self.table.sit(player2)
 
-# post turn betting round
+    # Runs
+    def go(self, runs):
 
-# river cards
+        counter = 0
 
-# post river
+        while counter < runs:
 
-# decide winner
-# payout
-# repeat
+            # Creates a new Game
+            self.table.create_game()
+
+            # assign player cards
+            self.table.current_game.draw_player_cards()
+
+            # betting and cards
+            self.table.current_game.betting()
+            self.table.current_game.deal_card(3)
+
+            self.table.current_game.betting()
+            self.table.current_game.deal_card(1)
+
+            self.table.current_game.betting()
+            self.table.current_game.deal_card(1)
+
+            self.table.current_game.betting()
+
+            # winner decision + payout
+            self.table.current_game.payout()

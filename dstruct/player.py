@@ -1,5 +1,8 @@
+from typing import List
 from treys import Evaluator
 from treys import Card as cd
+
+from card import Card
 
 
 class Player:
@@ -11,12 +14,15 @@ class Player:
         """
         self.stack = stack
         self.username = username
-        self.cards = []
+        self.cards: List[Card] = []
         # self.active = False
         self.bet = 0
 
     def __repr__(self):
         return f"{self.username} : {self.stack}"
+
+    def get_stack(self):
+        return self.stack
 
     def add_chips(self, num: int):
         """add chips to players total
@@ -72,9 +78,6 @@ class Player:
     # def make_inactive(self):
     #     """ Make a player inactive """
     #     self.active = False
-
-    def get_stack(self):
-        """ Get the current number of chips """
 
     def best_hand(self, table_cards):
         """ Get the Best Hand """

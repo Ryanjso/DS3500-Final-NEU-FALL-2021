@@ -21,14 +21,13 @@ class Table:
         """
         self.players.rotate(1)
 
-    def create_game(self) -> Game:
+    def create_game(self):
         # Since Dealer is always 0 and we are rotating players
         # we dont need to tell game who dealer is
         # somewhere we need to determine if all these players can be added
         # either dropping players with no money somewhere else or here
         self.current_game = Game(
             players=self.players, big_blind=self.big_blind, small_blind=self.small_blind)
-        return self.current_game
 
     def sit(self, player: Player):
         self.players.append(player)
