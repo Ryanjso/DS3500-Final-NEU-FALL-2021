@@ -51,6 +51,9 @@ class Engine:
             # winner decision + payout
             self.table.current_game.payout()
 
+            # cleanup
+            self.table.current_game.post_game_cleanup()
+
             counter += 1
 
             print('Game ' + str(counter) + ' Over')

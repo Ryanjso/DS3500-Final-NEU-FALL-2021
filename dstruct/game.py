@@ -94,68 +94,72 @@ class Game:
         """ Check if every active player has agreed to the current bet or is all in"""
         return self.game_over or all([p.get_bet() == self.bet or p.get_bet() == p.get_stack() for p in self.players if p.is_active()])
 
-    def fold(self, player: Player):
+    def fold(self):
         """ The current player folds - they become inactive for the rest of the game and lose the chips they've bet"""
-
-        player.make_inactive()
+        p = self.get_current_player()
+        p.make_inactive()
         # cause it's headsup poker
         self.game_over = True
-        print(f'{player.username} has folded')
+        print(f'{p.username} has folded')
 
-    def call(self, player: Player):
+    def call(self):
         """ The current player agrees to the current bet amount """
         # TODO - determine what to do if player does not have enough chips to match current bet
-
-        added_chips = self.bet - player.get_bet()
+        p = self.get_current_player()
+        added_chips = self.bet - p.get_bet()
         if added_chips == 0:
-            print(f'{player.username} has checked')
+            print(f'{p.username} has checked')
             return
-        print(
-            f'{player.username} has added {added_chips} to call current bet of {self.pot}')
-        player.increase_bet(self.bet)
+        print(f'{p.username} has added {added_chips} to call current bet of {self.pot}')
+        p.increase_bet(self.bet)
 
-    def raise_bet(self, player: Player, new_amount: int):
+    def raise_bet(self, new_amount: int):
         """ Raise bet amount """
-
-        print(f'{player.username} is attempting to bet total of {new_amount}')
-        print(f'but current bet is  {self.bet}')
-        print(f'{player.username} has rasied to {new_amount}')
+        p = self.get_current_player()
+        print(f'{p.username} has rasied to {new_amount}')
         if new_amount < self.bet:
             raise ValueError(
                 "Amount raised must be at least current bet.")
         self.bet = new_amount
-        player.increase_bet(new_amount)
+        p.increase_bet(new_amount)
 
-    def decision(self, player: Player):
+    def _max_raise(self):
+        """Get the max raise possible, ie lowest of either players chips"""
+        return min([player.get_stack() + player.get_bet() for player in self.players])
+
+    def decision(self):
         options = ["fold", "call", "raise_bet"]
-        weights = (20, 75, 5)
+        weights = (20, 65, 15)
         choice = random.choices(options, weights, k=1)[0]
 
         # TODO - dont let fold if can check
         if choice == "fold":
-            if self.bet - player.get_bet() == 0:
-                self.call(player)
+            if self.bet - self.get_current_player().get_bet() == 0:
+                self.call()
             else:
-                self.fold(player)
+                self.fold()
 
         elif choice == "call":
-            self.call(player)
+            self.call()
 
         elif choice == "raise_bet":
             # get random amount up to half of player stack
             bet = random.randint(self.bet + 1,
-                                 player.get_stack())
-            self.raise_bet(player, bet)
+                                 self._max_raise())
+            self.raise_bet(bet)
+
+        self._update_current_player()
 
     def betting(self):
         if self.game_over:
             return
 
-        for player in self.players:
+        for _ in range(2):
             if self.game_over:
                 return
-            print(f'{player.username} is making a decision')
-            self.decision(player)
+            p = self.get_current_player()
+            print(f'{p.username} is making a decision')
+            self.decision()
 
         while not self._is_hand_end():
 
@@ -199,3 +203,8 @@ class Game:
                 print(f'{winner.username} won {prize}chips')
 
         self.pot = 0
+
+    def post_game_cleanup(self):
+        self.bet = 0
+        for player in self.players:
+            player.clear_bet()
