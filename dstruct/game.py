@@ -94,68 +94,68 @@ class Game:
         """ Check if every active player has agreed to the current bet or is all in"""
         return self.game_over or all([p.get_bet() == self.bet or p.get_bet() == p.get_stack() for p in self.players if p.is_active()])
 
-    def fold(self):
+    def fold(self, player: Player):
         """ The current player folds - they become inactive for the rest of the game and lose the chips they've bet"""
-        p = self.get_current_player()
-        p.make_inactive()
+
+        player.make_inactive()
         # cause it's headsup poker
         self.game_over = True
-        print(f'{p.username} has folded')
+        print(f'{player.username} has folded')
 
-    def call(self):
+    def call(self, player: Player):
         """ The current player agrees to the current bet amount """
         # TODO - determine what to do if player does not have enough chips to match current bet
-        p = self.get_current_player()
-        added_chips = self.bet - p.get_bet()
-        if added_chips == 0:
-            return
-        print(f'{p.username} has added {added_chips} to call current bet of {self.pot}')
-        p.increase_bet(self.bet)
 
-    def raise_bet(self, new_amount: int):
+        added_chips = self.bet - player.get_bet()
+        if added_chips == 0:
+            print(f'{player.username} has checked')
+            return
+        print(
+            f'{player.username} has added {added_chips} to call current bet of {self.pot}')
+        player.increase_bet(self.bet)
+
+    def raise_bet(self, player: Player, new_amount: int):
         """ Raise bet amount """
-        p = self.get_current_player()
-        print(f'{p.username} is attempting to bet total of {new_amount}')
+
+        print(f'{player.username} is attempting to bet total of {new_amount}')
         print(f'but current bet is  {self.bet}')
-        print(f'{p.username} has rasied to {new_amount}')
+        print(f'{player.username} has rasied to {new_amount}')
         if new_amount < self.bet:
             raise ValueError(
                 "Amount raised must be at least current bet.")
         self.bet = new_amount
-        p.increase_bet(new_amount)
+        player.increase_bet(new_amount)
 
-    def decision(self):
+    def decision(self, player: Player):
         options = ["fold", "call", "raise_bet"]
         weights = (20, 75, 5)
         choice = random.choices(options, weights, k=1)[0]
 
         # TODO - dont let fold if can check
         if choice == "fold":
-            if self.bet - self.get_current_player().get_bet() == 0:
-                self.call()
+            if self.bet - player.get_bet() == 0:
+                self.call(player)
             else:
-                self.fold()
+                self.fold(player)
 
         elif choice == "call":
-            self.call()
+            self.call(player)
 
         elif choice == "raise_bet":
             # get random amount up to half of player stack
             bet = random.randint(self.bet + 1,
-                                 self.get_current_player().get_stack())
-            self.raise_bet(bet)
-
-        self._update_current_player()
+                                 player.get_stack())
+            self.raise_bet(player, bet)
 
     def betting(self):
         if self.game_over:
             return
 
-        print('betting round is starting', self._is_hand_end())
         for player in self.players:
             if self.game_over:
                 return
-            self.decision()
+            print(f'{player.username} is making a decision')
+            self.decision(player)
 
         while not self._is_hand_end():
 
