@@ -46,6 +46,7 @@ class Player:
         return self.stack
 
     def increase_bet(self, new_amount: int):
+        print(self.username)
         print(f'current bet: {self.bet}')
         print(f'new bet: {new_amount}')
         """ increase player's bet to the new amount """

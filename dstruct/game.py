@@ -107,24 +107,27 @@ class Game:
         # TODO - determine what to do if player does not have enough chips to match current bet
         p = self.get_current_player()
         added_chips = self.bet - p.get_bet()
-        p.increase_bet(self.bet)
+        if added_chips == 0:
+            return
         print(f'{p.username} has added {added_chips} to call current bet of {self.pot}')
+        p.increase_bet(self.bet)
 
     def raise_bet(self, new_amount: int):
         """ Raise bet amount """
         p = self.get_current_player()
         print(f'{p.username} is attempting to bet total of {new_amount}')
         print(f'but current bet is  {self.bet}')
+        print(f'{p.username} has rasied to {new_amount}')
         if new_amount < self.bet:
             raise ValueError(
                 "Amount raised must be at least current bet.")
         self.bet = new_amount
         p.increase_bet(new_amount)
-        print(f'{p.username} has rasied to {new_amount}')
 
     def decision(self):
         options = ["fold", "call", "raise_bet"]
-        choice = random.choice(options)
+        weights = (20, 60, 20)
+        choice = random.choices(options, weights, k=1)[0]
 
         # TODO - dont let fold if can check
         if choice == "fold":
@@ -155,6 +158,11 @@ class Game:
             self.decision()
 
         while not self._is_hand_end():
+
+            print('current bet for each player:')
+            for player in self.players:
+                print(f'{player.username}\'s bet is {player.get_bet()}')
+            print(f'highest bet is {self.bet}')
             self.decision()
 
         self.bet = 0
@@ -188,6 +196,6 @@ class Game:
             prize = self.pot / len(winners)
             for winner in winners:
                 winner.add_chips(prize)
-                print(f'Paid {winner.username} {prize}chips')
+                print(f'{winner.username} won {prize}chips')
 
         self.pot = 0
