@@ -92,7 +92,7 @@ class Game:
 
     def _is_hand_end(self) -> bool:
         """ Check if every active player has agreed to the current bet or is all in"""
-        return self.game_over and all([p.get_bet() == self.bet or p.get_bet() == p.get_stack() for p in self.players if p.is_active()])
+        return self.game_over or all([p.get_bet() == self.bet or p.get_bet() == p.get_stack() for p in self.players if p.is_active()])
 
     def fold(self):
         """ The current player folds - they become inactive for the rest of the game and lose the chips they've bet"""
@@ -126,7 +126,7 @@ class Game:
 
     def decision(self):
         options = ["fold", "call", "raise_bet"]
-        weights = (20, 60, 20)
+        weights = (20, 75, 5)
         choice = random.choices(options, weights, k=1)[0]
 
         # TODO - dont let fold if can check
