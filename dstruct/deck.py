@@ -1,4 +1,4 @@
-from dstruct.card import Card
+from card import Card
 import random
 
 
@@ -31,7 +31,8 @@ class Deck:
         if num < 1:
             raise ValueError("Cannot draw less than 1 card from deck")
         if len(self._cards) < num:
-            raise ValueError(f"Cannot draw {num} cards from deck of size {self.size()}")
+            raise ValueError(
+                f"Cannot draw {num} cards from deck of size {self.size()}")
         cards_drawn = []
         for _ in range(num):
             cards_drawn.append(self._cards.pop())
