@@ -134,6 +134,7 @@ class Game:
 
     def raise_bet(self, new_amount: int):
         """ Raise bet amount """
+        #TODO - if the other player is all in you shouldnt raise
         p = self.get_current_player()
         print(f'{p.username} has rasied to {new_amount}')
         if new_amount < self.bet:
