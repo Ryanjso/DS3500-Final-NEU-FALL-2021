@@ -44,18 +44,25 @@ class Game:
         # initially the current player is the dealer (button) so the current must be updated
 
         # TODO - if either player has less than SB or BB, they just do their max
+        # finished this but didnt completely test it
         # they should never have 0 at this point so dw bout that
         self._update_current_player()
         small_blind_player = self.get_current_player()
-        small_blind_player.increase_bet(self.small_blind)
-        self.pot += self.small_blind
+        if small_blind_player.stack < self.small_blind:
+            small_blind_player.increase_bet(small_blind_player.stack)
+        else:
+            small_blind_player.increase_bet(self.small_blind)
 
         # BB is next player after SB - could be dealer if two player game
         self._update_current_player()
         big_blind_player = self.get_current_player()
-        big_blind_player.increase_bet(self.big_blind)
-        self.pot += self.big_blind
-        self.bet = self.big_blind
+        if big_blind_player.stack < self.big_blind:
+            self.bet = big_blind_player.stack
+            big_blind_player.increase_bet(big_blind_player.stack)
+        else:
+            self.bet = self.big_blind
+            big_blind_player.increase_bet(self.big_blind)
+
         self._update_current_player()
 
         print(f'Blinds set, pot is  {self.pot}')
@@ -98,6 +105,7 @@ class Game:
         """ The current player folds - they become inactive for the rest of the game and lose the chips they've bet"""
         p = self.get_current_player()
         p.make_inactive()
+        self.betting()
         # cause it's headsup poker
         self.game_over = True
         print(f'{p.username} has folded')
@@ -110,7 +118,7 @@ class Game:
         if added_chips == 0:
             print(f'{p.username} has checked')
             return
-        print(f'{p.username} has added {added_chips} to call current bet of {self.pot}')
+        print(f'{p.username} has added {added_chips} to call current bet of {self.bet}')
         p.increase_bet(self.bet)
 
     def raise_bet(self, new_amount: int):
