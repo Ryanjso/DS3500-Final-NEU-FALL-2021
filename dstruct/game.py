@@ -50,6 +50,7 @@ class Game:
         small_blind_player = self.get_current_player()
         if small_blind_player.stack < self.small_blind:
             small_blind_player.increase_bet(small_blind_player.stack)
+            small_blind_player.all_in = True
         else:
             small_blind_player.increase_bet(self.small_blind)
 
@@ -59,6 +60,7 @@ class Game:
         if big_blind_player.stack < self.big_blind:
             self.bet = big_blind_player.stack
             big_blind_player.increase_bet(big_blind_player.stack)
+            big_blind_player.all_in = True
         else:
             self.bet = self.big_blind
             big_blind_player.increase_bet(self.big_blind)
@@ -115,6 +117,15 @@ class Game:
         # TODO - determine what to do if player does not have enough chips to match current bet
         p = self.get_current_player()
         added_chips = self.bet - p.get_bet()
+        if self.current == 1:
+            p2 = self.players[0]
+        else:
+            p2 = self.players[1]
+
+        # calling someone elses all in means you're all in
+        if p2.all_in:
+            p.all_in = True
+
         if added_chips == 0:
             print(f'{p.username} has checked')
             return
@@ -128,6 +139,9 @@ class Game:
         if new_amount < self.bet:
             raise ValueError(
                 "Amount raised must be at least current bet.")
+        if new_amount == p.stack:
+            #betting your entire stack means you're all in
+            p.all_in = True
         self.bet = new_amount
         p.increase_bet(new_amount)
 
@@ -139,8 +153,12 @@ class Game:
         options = ["fold", "call", "raise_bet"]
         weights = (20, 65, 15)
         choice = random.choices(options, weights, k=1)[0]
+        all_in = self.get_current_player().all_in
 
         # TODO - dont let fold if can check
+        if all_in:
+            # when you're all in all you can do is call
+            choice = "call"
         if choice == "fold":
             if self.bet - self.get_current_player().get_bet() == 0:
                 self.call()

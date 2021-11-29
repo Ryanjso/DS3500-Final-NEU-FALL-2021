@@ -16,6 +16,7 @@ class Player:
         self.cards: List[Card] = []
         self.active = False
         self.bet = 0
+        self.all_in = False
 
     def __repr__(self):
         return f"{self.username} : {self.stack}"
