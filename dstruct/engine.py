@@ -77,3 +77,7 @@ class Engine:
                 new_player = Player(500, name)
                 self.table.sit(new_player)
                 print('=============sitting new')
+
+            # Max chips someone can have is 1000
+            if players[i].get_stack() > 1000:
+                players[i]._subtract_chips(players[i].get_stack() - 1000)
