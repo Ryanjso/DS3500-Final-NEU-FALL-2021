@@ -42,14 +42,11 @@ class Game:
         """ Set the small and big blinds """
         # SB is player after dealer - dealer is index  0 so SB is index 1
         # initially the current player is the dealer (button) so the current must be updated
-
-        # TODO - if either player has less than SB or BB, they just do their max
-        # finished this but didnt completely test it
-        # they should never have 0 at this point so dw bout that
+        max_raise = self._max_raise()
         self._update_current_player()
         small_blind_player = self.get_current_player()
-        if small_blind_player.stack < self.small_blind:
-            small_blind_player.increase_bet(small_blind_player.stack)
+        if max_raise < self.small_blind:
+            small_blind_player.increase_bet(max_raise)
             small_blind_player.all_in = True
         else:
             small_blind_player.increase_bet(self.small_blind)
@@ -57,9 +54,9 @@ class Game:
         # BB is next player after SB - could be dealer if two player game
         self._update_current_player()
         big_blind_player = self.get_current_player()
-        if big_blind_player.stack < self.big_blind:
-            self.bet = big_blind_player.stack
-            big_blind_player.increase_bet(big_blind_player.stack)
+        if max_raise < self.big_blind:
+            self.bet = max_raise
+            big_blind_player.increase_bet(max_raise)
             big_blind_player.all_in = True
         else:
             self.bet = self.big_blind
@@ -134,14 +131,14 @@ class Game:
 
     def raise_bet(self, new_amount: int):
         """ Raise bet amount """
-        #TODO - if the other player is all in you shouldnt raise
+        # TODO - if the other player is all in you shouldnt raise
         p = self.get_current_player()
         print(f'{p.username} has rasied to {new_amount}')
         if new_amount < self.bet:
             raise ValueError(
                 "Amount raised must be at least current bet.")
         if new_amount == p.stack:
-            #betting your entire stack means you're all in
+            # betting your entire stack means you're all in
             p.all_in = True
         self.bet = new_amount
         p.increase_bet(new_amount)
@@ -154,14 +151,15 @@ class Game:
         options = ["fold", "call", "raise_bet"]
         weights = (20, 65, 15)
         choice = random.choices(options, weights, k=1)[0]
-        all_in = self.get_current_player().all_in
+        player = self.get_current_player()
+        all_in = player.all_in
+        self._update_current_player()
 
-        # TODO - dont let fold if can check
         if all_in:
             # when you're all in all you can do is call
             choice = "call"
         if choice == "fold":
-            if self.bet - self.get_current_player().get_bet() == 0:
+            if self.bet - player.get_bet() == 0:
                 self.call()
             else:
                 self.fold()
@@ -171,11 +169,14 @@ class Game:
 
         elif choice == "raise_bet":
             # get random amount up to half of player stack
-            bet = random.randint(self.bet + 1,
-                                 self._max_raise())
-            self.raise_bet(bet)
+            max_raise = self._max_raise()
 
-        self._update_current_player()
+            if self.bet == int(max_raise):
+                bet = max_raise
+            else:
+                bet = random.randint(self.bet + 1,
+                                     max_raise)
+            self.raise_bet(bet)
 
     def betting(self):
         if self.game_over:

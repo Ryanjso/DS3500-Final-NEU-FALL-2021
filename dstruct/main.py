@@ -4,7 +4,7 @@ from engine import Engine
 def main():
 
     poker = Engine()
-    poker.go(1)
+    poker.go(runs=100)
 
 
 # Press the green button in the gutter to run the script.

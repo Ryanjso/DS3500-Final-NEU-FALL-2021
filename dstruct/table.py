@@ -1,4 +1,5 @@
 from collections import deque
+from typing import Deque
 from player import Player
 from game import Game
 
@@ -8,7 +9,7 @@ class Table:
 
         # List of players at this table
         # Players at the table are assumed to be sitting in
-        self.players = deque([])
+        self.players: Deque[Player] = deque([])
 
         # Assign Big Blind and Small Blind amounts
         self.big_blind = big_blind
@@ -34,3 +35,6 @@ class Table:
 
     def stand(self, player_idx):
         del self.players[player_idx]
+
+    def get_players(self):
+        return self.players

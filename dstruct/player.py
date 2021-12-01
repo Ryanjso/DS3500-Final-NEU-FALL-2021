@@ -97,6 +97,7 @@ class Player:
 
         # Evaluate the score and the corresponding score class
         evaluator = Evaluator()
+        print(f'{self.username} {board} {hand}')
         score = evaluator.evaluate(board, hand)
         score_class = evaluator.get_rank_class(score)
         print(
