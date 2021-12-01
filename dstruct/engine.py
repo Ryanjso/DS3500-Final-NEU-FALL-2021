@@ -1,5 +1,7 @@
 from player import Player
 from table import Table
+import random
+import string
 
 
 class Engine:
@@ -26,6 +28,11 @@ class Engine:
 
             print('============================')
             print('Game ' + str(counter) + ' Started')
+
+            # Make sure there are 2 players with > 0 chips
+            self.top_up_players()
+
+            print(f'Players in this game-> {self.table.get_players()}')
 
             # Creates a new Game
             self.table.create_game()
@@ -54,6 +61,23 @@ class Engine:
             # cleanup
             self.table.current_game.post_game_cleanup()
 
+            print('Game ' + str(counter) + ' Over')
+
             counter += 1
 
-            print('Game ' + str(counter) + ' Over')
+    def top_up_players(self):
+        players = self.table.get_players()
+        for i in range(len(players)):
+            if players[i].get_stack() == 0:
+                self.table.stand(i)
+
+                letters = string.ascii_lowercase
+                name = 'player_' + ''.join(random.choice(letters)
+                                           for i in range(6))
+                new_player = Player(500, name)
+                self.table.sit(new_player)
+                print('=============sitting new')
+
+            # Max chips someone can have is 1000
+            if players[i].get_stack() > 1000:
+                players[i]._subtract_chips(players[i].get_stack() - 1000)
