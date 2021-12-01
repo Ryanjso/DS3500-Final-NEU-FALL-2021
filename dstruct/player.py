@@ -56,6 +56,8 @@ class Player:
         if added_chips > self.stack:
             raise ValueError("Cannot add more chips than a player has")
         self._subtract_chips(added_chips)
+        if self.get_stack() == 0:
+            self.all_in = True
         self.bet = new_amount
 
     def get_bet(self):

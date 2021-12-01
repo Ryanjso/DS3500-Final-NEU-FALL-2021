@@ -151,15 +151,13 @@ class Game:
         options = ["fold", "call", "raise_bet"]
         weights = (20, 65, 15)
         choice = random.choices(options, weights, k=1)[0]
-        player = self.get_current_player()
-        all_in = player.all_in
-        self._update_current_player()
+        all_in = self.get_current_player().all_in
 
         if all_in:
             # when you're all in all you can do is call
             choice = "call"
         if choice == "fold":
-            if self.bet - player.get_bet() == 0:
+            if self.bet - self.get_current_player().get_bet() == 0:
                 self.call()
             else:
                 self.fold()
@@ -177,6 +175,8 @@ class Game:
                 bet = random.randint(self.bet + 1,
                                      max_raise)
             self.raise_bet(bet)
+
+        self._update_current_player()
 
     def betting(self):
         if self.game_over:
