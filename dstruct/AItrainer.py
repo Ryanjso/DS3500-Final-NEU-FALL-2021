@@ -4,7 +4,40 @@ from player import Player
 import random
 from typing import List
 
-class Game:
+class Trainer:
+    # Real Reward:
+    # When fold --> calculate the loss (how much you bet)
+    # When raise --> add to reward if win, subtract if lose
+    # When call --> reward stays at whatever the initial bet was (add/sub if win or loss)
+
+    # CounterFactual:
+    # Fold --> if you fold and would have won, you would regret not raising (regret value of raising would be size of
+    #            pot)
+    # Call --> if you call and win, you would regret not raising (regret value of calling would be the pre-flop
+    #           amount or value of going all-in, raise proportional to the pot (treys probability))
+    # Call --> if you call and lose, you would regret not folding (regret value of calling would be buy-in)
+    # Raise --> if you raise and lose, you would regret not folding (regret value of folding would be size of the raise)
+
+    # Regret scores = counterfactuals - real rewards
+
+    # EXAMPLE: -> hand : [regret scores]
+    # {"flush" : [40, 60, 100]} --> {"flush" : [20%, 30%, 50%]} --> 'flop 20% of the time, call 30% of the time,
+    #               raise 50% of the time (when hand is a flush)'
+
+    # Values --> [Fold, Call, Raise] (Regret values)
+    regrets_dict = {
+        "royal flush": [0,0,0],
+        "straight flush": [0,0,0],
+        "four of a kind": [0,0,0],
+        "full house": [0,0,0],
+        "flush": [0,0,0],
+        "straight": [0,0,0],
+        "three of a kind": [0,0,0],
+        "two pair": [0,0,0],
+        "one pair": [0,0,0],
+        "high card": [0,0,0]
+    }
+
 
     def __init__(self, players, big_blind=20, small_blind=10):
         # List of players in this game
@@ -346,11 +379,10 @@ class Game:
             print("name: ", x.username, "stack: ", x.get_stack())
 
 
-
 if __name__ == "__main__":
-    player1 = Player(500, "AI")
-    player2 = Player(500, "you")
+    player1 = Player(500, "AI", True)
+    player2 = Player(500, "you", False)
     p = [player1, player2]
-    g1 = Game(p, big_blind=20, small_blind=10)
+    g1 = Trainer(p, big_blind=20, small_blind=10)
     print(g1.play_game())
 
