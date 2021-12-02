@@ -268,7 +268,7 @@ class Game:
                 break
 
             p = self.get_current_player()
-            if p.username == "Dwight":
+            if not p.is_ai():
                 print(f"turn: {p.username}")
 
                 choice = ""
