@@ -263,17 +263,17 @@ class Game:
 
         # TODO MAYBE: would be nice to ask the player to enter their username (this probabaly would go in main or engine though)
 
-        #number of actions taken - every active player should make at least one action in a hand
         action_count = 0
         while True:
             hand_end = self.get_current_player().get_bet() == self.get_next_player().get_bet() \
-                       and action_count >= len(self.players)
+                and action_count >= len(self.players)
 
             if hand_end or self.game_over:
                 self._reset_betting()
                 break
 
             p = self.get_current_player()
+
             print('current bet for each player:')
             for player in self.players:
                 print(f'{player.username}\'s bet is {player.get_bet()}')
@@ -345,5 +345,3 @@ class Game:
         print("Final stats")
         for x in self.players:
             print("name: ", x.username, "stack: ", x.get_stack())
-
-
