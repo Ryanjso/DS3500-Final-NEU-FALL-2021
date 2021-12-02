@@ -242,6 +242,9 @@ class Game:
             weights = (20, 65, 15)
             choice = random.choices(options, weights, k=1)[0]
 
+            if choice == "fold" and self.bet - self.get_current_player().get_bet() == 0:
+                return "call", None
+
             if choice == "raise":
                 max_raise = int(self._max_raise())
                 if self.bet == max_raise:
