@@ -38,3 +38,5 @@ class Table:
 
     def get_players(self):
         return self.players
+
+

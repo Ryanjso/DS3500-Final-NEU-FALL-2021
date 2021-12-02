@@ -9,6 +9,8 @@ class Game:
 
     def __init__(self, players, big_blind=20, small_blind=10):
         # List of players in this game
+        if len(players) != 2:
+            raise ValueError("Invalid number of players.")
         self.players: List[Player] = players
         # Cards on the table
         self.community_cards: List[Card] = []
@@ -43,7 +45,7 @@ class Game:
         # SB is player after dealer - dealer is index  0 so SB is index 1
         # initially the current player is the dealer (button) so the current must be updated
         max_raise = self._max_raise()
-        self._update_current_player()
+        self.update_current_player()
         small_blind_player = self.get_current_player()
         if max_raise < self.small_blind:
             small_blind_player.increase_bet(max_raise)
@@ -52,7 +54,7 @@ class Game:
             small_blind_player.increase_bet(self.small_blind)
 
         # BB is next player after SB - could be dealer if two player game
-        self._update_current_player()
+        self.update_current_player()
         big_blind_player = self.get_current_player()
         if max_raise < self.big_blind:
             self.bet = max_raise
@@ -62,10 +64,9 @@ class Game:
             self.bet = self.big_blind
             big_blind_player.increase_bet(self.big_blind)
 
-        self._update_current_player()
+        self.update_current_player()
 
-        print(f'Blinds set, pot is  {self.pot}')
-        print(f'Blinds set, bet is  {self.bet}')
+        print(f'Blinds set, pot is  {self.pot}, bet is  {self.bet}')
 
     def draw_player_cards(self):
         # Have players draw two cards
@@ -86,28 +87,28 @@ class Game:
         """ Get the current player """
         return self.players[self.current]
 
-    def _update_current_player(self):
-        """ Update the current player to the next active player in the table"""
+    def _next_player_idx(self) -> int:
         if self.current == 0:
-            self.current = 1
+            return 1
         else:
-            self.current = 0
+            return 0
 
-    # TODO - this only works for first round of betting because
-    # blinds force them to not be the same
+    def get_next_player(self) -> Player:
+        return self.players[self._next_player_idx()]
 
-    def _is_hand_end(self) -> bool:
-        """ Check if every active player has agreed to the current bet or is all in"""
-        return self.game_over or all([p.get_bet() == self.bet or p.get_bet() == p.get_stack() for p in self.players if p.is_active()])
+    def update_current_player(self):
+        """ Update the current player to the next active player in the table"""
+        self.current = self._next_player_idx()
 
     def fold(self):
         """ The current player folds - they become inactive for the rest of the game and lose the chips they've bet"""
         p = self.get_current_player()
         p.make_inactive()
-        self.betting()
         # cause it's headsup poker
-        self.game_over = True
+        self.pot += p.get_bet()
+        p.clear_bet()
         print(f'{p.username} has folded')
+        self.game_over = True
 
     def call(self):
         """ The current player agrees to the current bet amount """
@@ -133,10 +134,14 @@ class Game:
         """ Raise bet amount """
         # TODO - if the other player is all in you shouldnt raise
         p = self.get_current_player()
-        print(f'{p.username} has rasied to {new_amount}')
+        print(f'{p.username} has raised to {new_amount}')
         if new_amount < self.bet:
             raise ValueError(
-                "Amount raised must be at least current bet.")
+                f"Amount raised must be at least the current bet of {self.bet}.")
+        max_raise = self._max_raise()
+        if new_amount > max_raise:
+            raise ValueError(
+                f"Amount raised cannot be greater than {max_raise} because a player doesn't have enough chips.")
         if new_amount == p.stack:
             # betting your entire stack means you're all in
             p.all_in = True
@@ -176,32 +181,34 @@ class Game:
                                      max_raise)
             self.raise_bet(bet)
 
-        self._update_current_player()
+        self.update_current_player()
 
     def betting(self):
         if self.game_over:
             return
 
-        for _ in range(2):
-            if self.game_over:
-                return
-            p = self.get_current_player()
-            print(f'{p.username} is making a decision')
-            self.decision()
-
-        while not self._is_hand_end():
-
+        action_count = 0
+        while True:
+            # the hand ends if both players have the same bet and both have been visited
+            hand_end = self.get_current_player().get_bet() == self.get_next_player().get_bet() \
+                       and action_count >= len(self.players)
+            if hand_end or self.game_over:
+                break
             print('current bet for each player:')
             for player in self.players:
                 print(f'{player.username}\'s bet is {player.get_bet()}')
             print(f'highest bet is {self.bet}')
             self.decision()
+            action_count += 1
 
+        self._reset_betting()
+        print('betting round has ended')
+
+    def _reset_betting(self):
         self.bet = 0
         self.pot += sum([player.get_bet() for player in self.players])
         for player in self.players:
             player.clear_bet()
-        print('betting round has ended')
 
     def best_hand(self):
         player1_score = self.players[0].best_hand(self.community_cards)
@@ -225,10 +232,10 @@ class Game:
             winners = self.best_hand()
             if len(winners) > 1:
                 print('There was a tie!')
-            prize = self.pot / len(winners)
+            prize = int(self.pot / len(winners))
             for winner in winners:
                 winner.add_chips(prize)
-                print(f'{winner.username} won {prize}chips')
+                print(f'{winner.username} won {prize} chips')
 
         self.pot = 0
 
@@ -236,3 +243,106 @@ class Game:
         self.bet = 0
         for player in self.players:
             player.clear_bet()
+            player.active = False
+            player.all_in = False
+            
+    def play_hand(self):
+         # TODO MAYBE: In normal poker the small blind always starts at the start of each round. currently we just do the next person
+         # after whoever was the last person to make a move in the previous round
+         # NOT SURE but I think this also applies to when the AI plays against it's self
+
+        # TODO: Merge ali_branch and incorporate all the all_in bug fixes from that branch
+
+        # TODO MAYBE: would be nice to ask the player to enter their username (this probabaly would go in main or engine though)
+
+
+        options = ["fold", "call", "raise"]
+        action_count = 0
+
+        while True:
+            hand_end = self.get_current_player().get_bet() == self.get_next_player().get_bet() \
+                       and action_count >= len(self.players)
+
+            if hand_end or self.game_over:
+                self.reset_betting()
+                break
+
+            p = self.get_current_player()
+            if not p.is_ai():
+                print(f"turn: {p.username}")
+
+                choice = ""
+                all_in = self.get_current_player().all_in
+                if all_in:
+                    choice = "call"
+
+                while choice not in options:
+                    choice = input("enter one of three possible actions: fold, call, raise: ")
+                    if choice not in options:
+                        print("invalid action")
+
+                if choice == "fold":
+                    try:
+                        self.fold()
+                    except ValueError as err:
+                        print(err)
+                        break
+
+                if choice == "call":
+                    try:
+                        self.call()
+                    except ValueError as err:
+                        print(err)
+                        break
+
+                if choice == "raise":
+                    for retries in range(10):
+                        try:
+                            amount = input("enter an integer amount to raise: ")
+                            amount = int(amount)
+                            self.raise_bet(amount)
+                            break
+                        except ValueError as err:
+                            print(err)
+
+                self.update_current_player()
+                action_count += 1
+            else:
+                self.decision()
+                action_count += 1
+
+    def play_game(self):
+        if self.game_over:
+            return
+        while not self.game_over:
+            self.set_blinds()
+
+            # i'm pretty sure the BB and SB are correct, but might want to check
+            print("Big Blind: ", self.players[0].username)
+            print("Small Blind: ", self.players[1].username)
+
+            print("\nPRE-FLOP")
+            self.draw_player_cards()
+            self.play_hand()
+
+            print("\nFLOP")
+            self.deal_card(3)
+            self.play_hand()
+
+            print("\nTURN")
+            self.deal_card(1)
+            self.play_hand()
+
+            print("\nRIVER")
+            self.deal_card(1)
+            self.play_hand()
+            self.game_over = True
+
+        print("\nSHOWDOWN")
+        self.payout()
+        self.post_game_cleanup()
+        print("Final stats")
+        for x in self.players:
+            print("name: ", x.username, "stack: ", x.get_stack())
+
+

@@ -12,12 +12,27 @@ class Engine:
         # New table
         self.table = Table(big_blind=20, small_blind=10)
 
-        player1 = Player(500, "Dwight")
-        player2 = Player(500, "Michael")
+        player1 = Player(500, "Dwight", ai=True)
+        player2 = Player(500, "Michael", ai=True)
 
         # Add players to table
         self.table.sit(player1)
         self.table.sit(player2)
+
+    def play_ai(self, runs):
+        counter = 0
+
+        # Creates a new Game
+        while counter < runs:
+            print('============================')
+            print('Game ' + str(counter) + ' Started')
+
+            self.table.create_game()
+            self.table.current_game.play_game()
+            self.table.rotate_blinds()
+
+            counter += 1
+
 
     # Runs
     def go(self, runs):
@@ -74,10 +89,14 @@ class Engine:
                 letters = string.ascii_lowercase
                 name = 'player_' + ''.join(random.choice(letters)
                                            for i in range(6))
-                new_player = Player(500, name)
+                new_player = Player(500, name, ai=True)
                 self.table.sit(new_player)
                 print('=============sitting new')
 
             # Max chips someone can have is 1000
             if players[i].get_stack() > 1000:
-                players[i]._subtract_chips(players[i].get_stack() - 1000)
+                players[i].subtract_chips(players[i].get_stack() - 1000)
+
+
+
+
