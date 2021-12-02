@@ -27,8 +27,7 @@ class Engine:
             print('============================')
             print('Game ' + str(counter) + ' Started')
 
-            self.table.create_game()
-            self.table.current_game.play_game()
+            self.table.new_game()
             self.table.rotate_blinds()
 
             counter += 1
