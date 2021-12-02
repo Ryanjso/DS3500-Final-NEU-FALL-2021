@@ -33,7 +33,6 @@ class Engine:
 
             counter += 1
 
-
     # Runs
     def go(self, runs):
 
@@ -49,32 +48,7 @@ class Engine:
 
             print(f'Players in this game-> {self.table.get_players()}')
 
-            # Creates a new Game
-            self.table.create_game()
-
-            # set blinds
-            self.table.current_game.set_blinds()
-
-            # assign player cards
-            self.table.current_game.draw_player_cards()
-
-            # betting and cards
-            self.table.current_game.betting()
-            self.table.current_game.deal_card(3)
-
-            self.table.current_game.betting()
-            self.table.current_game.deal_card(1)
-
-            self.table.current_game.betting()
-            self.table.current_game.deal_card(1)
-
-            self.table.current_game.betting()
-
-            # winner decision + payout
-            self.table.current_game.payout()
-
-            # cleanup
-            self.table.current_game.post_game_cleanup()
+            self.table.new_game()
 
             print('Game ' + str(counter) + ' Over')
 

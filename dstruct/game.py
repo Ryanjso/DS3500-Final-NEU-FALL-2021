@@ -130,18 +130,33 @@ class Game:
         print(f'{p.username} has added {added_chips} to call current bet of {self.bet}')
         p.increase_bet(self.bet)
 
-    def raise_bet(self, new_amount: int):
-        """ Raise bet amount """
-        # TODO - if the other player is all in you shouldnt raise
+    def _check_raise(self, new_amount: int):
+        """ Check if raise amount is valid """
         p = self.get_current_player()
-        print(f'{p.username} has raised to {new_amount}')
+        if new_amount > p.get_stack():
+            raise ValueError(
+                f"Cannot raise to {new_amount} because {p.username} only has {p.get_stack()} chips."
+            )
+        n = self.get_next_player()
+        if self.get_next_player().all_in:
+            raise ValueError(
+                f"Cannot raise because {n.username} is all in."
+            )
         if new_amount < self.bet:
             raise ValueError(
-                f"Amount raised must be at least the current bet of {self.bet}.")
+                f"Amount raised must be at least the current bet of {self.bet}."
+            )
         max_raise = self._max_raise()
         if new_amount > max_raise:
             raise ValueError(
-                f"Amount raised cannot be greater than {max_raise} because a player doesn't have enough chips.")
+                f"Amount raised cannot be greater than {max_raise} because a player doesn't have enough chips."
+            )
+
+    def raise_bet(self, new_amount: int):
+        """ Raise bet amount """
+        p = self.get_current_player()
+        self._check_raise(new_amount)
+        print(f'{p.username} has raised to {new_amount}')
         if new_amount == p.stack:
             # betting your entire stack means you're all in
             p.all_in = True
@@ -151,64 +166,6 @@ class Game:
     def _max_raise(self):
         """Get the max raise possible, ie lowest of either players chips"""
         return min([player.get_stack() + player.get_bet() for player in self.players])
-
-    def decision(self):
-        options = ["fold", "call", "raise_bet"]
-        weights = (20, 65, 15)
-        choice = random.choices(options, weights, k=1)[0]
-        all_in = self.get_current_player().all_in
-
-        if all_in:
-            # when you're all in all you can do is call
-            choice = "call"
-        if choice == "fold":
-            if self.bet - self.get_current_player().get_bet() == 0:
-                self.call()
-            else:
-                self.fold()
-
-        elif choice == "call":
-            self.call()
-
-        elif choice == "raise_bet":
-            # get random amount up to half of player stack
-            max_raise = self._max_raise()
-
-            if self.bet == int(max_raise):
-                bet = max_raise
-            else:
-                bet = random.randint(self.bet + 1,
-                                     max_raise)
-            self.raise_bet(bet)
-
-        self.update_current_player()
-
-    def betting(self):
-        if self.game_over:
-            return
-
-        action_count = 0
-        while True:
-            # the hand ends if both players have the same bet and both have been visited
-            hand_end = self.get_current_player().get_bet() == self.get_next_player().get_bet() \
-                       and action_count >= len(self.players)
-            if hand_end or self.game_over:
-                break
-            print('current bet for each player:')
-            for player in self.players:
-                print(f'{player.username}\'s bet is {player.get_bet()}')
-            print(f'highest bet is {self.bet}')
-            self.decision()
-            action_count += 1
-
-        self._reset_betting()
-        print('betting round has ended')
-
-    def _reset_betting(self):
-        self.bet = 0
-        self.pot += sum([player.get_bet() for player in self.players])
-        for player in self.players:
-            player.clear_bet()
 
     def best_hand(self):
         player1_score = self.players[0].best_hand(self.community_cards)
@@ -245,8 +202,59 @@ class Game:
             player.clear_bet()
             player.active = False
             player.all_in = False
-            
+
+    def _reset_betting(self):
+        """ After a hand the chips are added to the pot and bets are reset to 0 """
+        self.bet = 0
+        self.pot += sum([player.get_bet() for player in self.players])
+        for player in self.players:
+            player.clear_bet()
+
+    def _get_choice(self) -> tuple:
+        """ Get one of fold, call, or raise - for either AI or human"""
+        options = ["fold", "call", "raise"]
+        p = self.get_current_player()
+        choice = ""
+
+        if p.all_in or self.get_next_player().all_in:
+            return "call", None
+
+        if not p.is_ai():
+            while choice not in options:
+                choice = input("enter one of three possible actions: fold, call, raise: ")
+                if choice not in options:
+                    print("invalid action")
+
+            if choice == "raise":
+                for retries in range(10):
+                    try:
+                        amount = input("enter an integer amount to raise: ")
+                        amount = int(amount)
+                        self._check_raise(amount)
+                        return choice, amount
+                    except ValueError as err:
+                        print(err)
+
+            else:
+                return choice, None
+
+        else:
+            weights = (20, 65, 15)
+            choice = random.choices(options, weights, k=1)[0]
+
+            if choice == "raise":
+                max_raise = int(self._max_raise())
+                if self.bet == max_raise:
+                    amount = max_raise
+                else:
+                    amount = random.randint(self.bet + 1, max_raise)
+                return choice, amount
+
+            else:
+                return choice, None
+
     def play_hand(self):
+        """ Plays a hand - either PRE-FLOP, FLOP, TURN, or RIVER """
          # TODO MAYBE: In normal poker the small blind always starts at the start of each round. currently we just do the next person
          # after whoever was the last person to make a move in the previous round
          # NOT SURE but I think this also applies to when the AI plays against it's self
@@ -255,65 +263,55 @@ class Game:
 
         # TODO MAYBE: would be nice to ask the player to enter their username (this probabaly would go in main or engine though)
 
-
-        options = ["fold", "call", "raise"]
+        #number of actions taken - every active player should make at least one action in a hand
         action_count = 0
-
         while True:
             hand_end = self.get_current_player().get_bet() == self.get_next_player().get_bet() \
                        and action_count >= len(self.players)
 
             if hand_end or self.game_over:
-                self.reset_betting()
+                self._reset_betting()
                 break
 
             p = self.get_current_player()
-            if not p.is_ai():
-                print(f"turn: {p.username}")
+            print('current bet for each player:')
+            for player in self.players:
+                print(f'{player.username}\'s bet is {player.get_bet()}')
+            print(f"turn: {p.username}")
 
-                choice = ""
-                all_in = self.get_current_player().all_in
-                if all_in:
-                    choice = "call"
+            choice = self._get_choice()
+            option = choice[0]
+            amount = choice[1]
 
-                while choice not in options:
-                    choice = input("enter one of three possible actions: fold, call, raise: ")
-                    if choice not in options:
-                        print("invalid action")
+            if option == "fold":
+                try:
+                    self.fold()
+                except ValueError as err:
+                    print(err)
+                    break
 
-                if choice == "fold":
-                    try:
-                        self.fold()
-                    except ValueError as err:
-                        print(err)
-                        break
+            if option == "call":
+                try:
+                    self.call()
+                except ValueError as err:
+                    print(err)
+                    break
 
-                if choice == "call":
-                    try:
-                        self.call()
-                    except ValueError as err:
-                        print(err)
-                        break
+            if option == "raise":
+                try:
+                    self.raise_bet(amount)
+                except ValueError as err:
+                    print(err)
+                    break
 
-                if choice == "raise":
-                    for retries in range(10):
-                        try:
-                            amount = input("enter an integer amount to raise: ")
-                            amount = int(amount)
-                            self.raise_bet(amount)
-                            break
-                        except ValueError as err:
-                            print(err)
-
-                self.update_current_player()
-                action_count += 1
-            else:
-                self.decision()
-                action_count += 1
+            self.update_current_player()
+            action_count += 1
 
     def play_game(self):
+        """ Plays the entire game through """
         if self.game_over:
             return
+
         while not self.game_over:
             self.set_blinds()
 
