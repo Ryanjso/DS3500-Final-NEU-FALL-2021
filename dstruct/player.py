@@ -6,7 +6,7 @@ from card import Card
 
 class Player:
 
-    def __init__(self, stack: int, username: str):
+    def __init__(self, stack: int, username: str, ai: bool = False):
         """Person who is at the table
         Args:
             stack (int): how much $ someone wants to start with
@@ -17,6 +17,7 @@ class Player:
         self.active = False
         self.bet = 0
         self.all_in = False
+        self.ai = ai
 
     def __repr__(self):
         return f"{self.username} : {self.stack}"
@@ -34,7 +35,7 @@ class Player:
         self.stack += num
         return self.stack
 
-    def _subtract_chips(self, num: int):
+    def subtract_chips(self, num: int):
         """removes chips from players total
         Args:
             num (int): number of chips to remove
@@ -55,7 +56,7 @@ class Player:
         added_chips = new_amount - self.bet
         if added_chips > self.stack:
             raise ValueError("Cannot add more chips than a player has")
-        self._subtract_chips(added_chips)
+        self.subtract_chips(added_chips)
         if self.get_stack() == 0:
             self.all_in = True
         self.bet = new_amount

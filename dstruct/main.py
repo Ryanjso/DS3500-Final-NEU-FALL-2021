@@ -5,6 +5,7 @@ def main():
 
     poker = Engine()
     poker.go(runs=1)
+    poker.play_ai(2)
 
 
 # Press the green button in the gutter to run the script.
