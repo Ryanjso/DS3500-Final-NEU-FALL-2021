@@ -61,6 +61,9 @@ class Engine:
             # cleanup
             self.table.current_game.post_game_cleanup()
 
+            # rotate big and small blind
+            self.table.rotate_blinds()
+
             print('Game ' + str(counter) + ' Over')
 
             counter += 1

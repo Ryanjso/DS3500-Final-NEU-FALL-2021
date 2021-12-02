@@ -93,9 +93,6 @@ class Game:
         else:
             self.current = 0
 
-    # TODO - this only works for first round of betting because
-    # blinds force them to not be the same
-
     def _is_hand_end(self) -> bool:
         """ Check if every active player has agreed to the current bet or is all in"""
         return self.game_over or all([p.get_bet() == self.bet or p.get_bet() == p.get_stack() for p in self.players if p.is_active()])
@@ -104,14 +101,13 @@ class Game:
         """ The current player folds - they become inactive for the rest of the game and lose the chips they've bet"""
         p = self.get_current_player()
         p.make_inactive()
-        self.betting()
         # cause it's headsup poker
+        self.pot += p.get_bet()
         self.game_over = True
         print(f'{p.username} has folded')
 
     def call(self):
         """ The current player agrees to the current bet amount """
-        # TODO - determine what to do if player does not have enough chips to match current bet
         p = self.get_current_player()
         added_chips = self.bet - p.get_bet()
         if self.current == 1:
@@ -123,15 +119,19 @@ class Game:
         if p2.all_in:
             p.all_in = True
 
-        if added_chips == 0:
+        if added_chips == 0 or p.get_stack() == 0:
             print(f'{p.username} has checked')
-            return
-        print(f'{p.username} has added {added_chips} to call current bet of {self.bet}')
-        p.increase_bet(self.bet)
+        elif added_chips >= p.get_stack():
+            # if you don't have enough chips to call but want to call then you are now all in
+            print(f'{p.username} has gone all in to call current bet of {self.bet}')
+            p.all_in = True
+            p.increase_bet(p.get_bet() + p.get_stack())
+        else:
+            print(f'{p.username} has added {added_chips} to call current bet of {self.bet}')
+            p.increase_bet(self.bet)
 
     def raise_bet(self, new_amount: int):
         """ Raise bet amount """
-        # TODO - if the other player is all in you shouldnt raise
         p = self.get_current_player()
         print(f'{p.username} has rasied to {new_amount}')
         if new_amount < self.bet:
@@ -153,9 +153,15 @@ class Game:
         choice = random.choices(options, weights, k=1)[0]
         all_in = self.get_current_player().all_in
 
+        if self.current == 1:
+            p2 = self.players[0]
+        else:
+            p2 = self.players[1]
+
         if all_in:
             # when you're all in all you can do is call
             choice = "call"
+
         if choice == "fold":
             if self.bet - self.get_current_player().get_bet() == 0:
                 self.call()
@@ -166,15 +172,18 @@ class Game:
             self.call()
 
         elif choice == "raise_bet":
-            # get random amount up to half of player stack
-            max_raise = self._max_raise()
-
-            if self.bet == int(max_raise):
-                bet = max_raise
+            if p2.all_in:
+                self.call()
             else:
-                bet = random.randint(self.bet + 1,
-                                     max_raise)
-            self.raise_bet(bet)
+                # get random amount up to half of player stack
+                max_raise = self._max_raise()
+
+                if self.bet == int(max_raise):
+                    bet = max_raise
+                else:
+                    bet = random.randint(self.bet + 1,
+                                         max_raise)
+                self.raise_bet(bet)
 
         self._update_current_player()
 
@@ -236,3 +245,4 @@ class Game:
         self.bet = 0
         for player in self.players:
             player.clear_bet()
+            player.all_in = False
