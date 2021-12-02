@@ -457,6 +457,17 @@ class Trainer:
             print("name: ", x.username, "stack: ", x.get_stack())
 
 
+    def convert_totals(self):
+
+        for hand in Trainer.regrets_dict:
+            total = sum(Trainer.regrets_dict[hand])
+
+            Trainer.regrets_dict[hand] = [round((Trainer.regrets_dict[hand][0] / total), 3),
+                                          round((Trainer.regrets_dict[hand][1] / total), 3),
+                                          round((Trainer.regrets_dict[hand][2] / total), 3)
+        return Trainer.regrets_dict
+
+
 if __name__ == "__main__":
     player1 = Player(500, "AI", True)
     player2 = Player(500, "you", False)
