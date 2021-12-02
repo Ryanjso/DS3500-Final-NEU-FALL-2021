@@ -39,6 +39,7 @@ class Visualizer:
                           xaxis_title='Round Name',
                           yaxis_title='Percentage Rank Among all Hands',
                           template='plotly_white',
+                          yaxis_tickformat='%',
                           font=dict(
                               family="Courier New, monospace",
                               size=14,
