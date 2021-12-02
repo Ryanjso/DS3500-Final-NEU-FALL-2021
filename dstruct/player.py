@@ -85,6 +85,21 @@ class Player:
         """ Make a player inactive """
         self.active = False
 
+    def hand_rank(self, table_cards):
+        """ Get the user's current hand percentage rank"""
+        # Convert hand to be compatible with treys
+        hand = [card.to_treys() for card in self.cards]
+
+        # Convert board to be compatible with treys
+        board = [card.to_treys() for card in table_cards]
+
+        # Evaluate the score and the corresponding score class
+        evaluator = Evaluator()
+
+        score = evaluator.evaluate(board, hand)
+        rank = round((1.0 - float(score) / 7462) * 100, 2)
+        return rank
+
     def best_hand(self, table_cards):
         """ Get the Best Hand """
         # https://github.com/msaindon/deuces
@@ -102,8 +117,7 @@ class Player:
         print(f'{self.username} {board} {hand}')
         score = evaluator.evaluate(board, hand)
         score_class = evaluator.get_rank_class(score)
-        print(
-            f"{self.username} best hand rank: {evaluator.class_to_string(score_class)}")
+        print(f"{self.username} best hand rank: {evaluator.class_to_string(score_class)}")
         return score
 
     def clear_hand(self):

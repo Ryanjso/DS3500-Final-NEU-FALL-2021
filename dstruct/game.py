@@ -1,6 +1,7 @@
 from deck import Deck
 from card import Card
 from player import Player
+from visualizer import Visualizer
 import random
 from typing import List
 
@@ -27,6 +28,8 @@ class Game:
         self.game_over: bool = False
         # The current bet amount for the table
         self.bet = self.big_blind
+        # store data to visualize the hand percentage ranks
+        self.visualizer: Visualizer = Visualizer()
 
         self._ready_players()
 
@@ -37,6 +40,7 @@ class Game:
         for player in self.players:
             player.clear_hand()
             player.make_active()
+            self.visualizer.add_player(player.username)
 
     def set_blinds(self):
         """ Set the small and big blinds """
@@ -80,6 +84,9 @@ class Game:
         print('Dealing Community Cards')
 
         self.community_cards += self.deck.draw(number)
+        for player in self.players:
+            username, score = player.username, player.hand_rank(self.community_cards)
+            self.visualizer.add_value(username, score)
         print(self.community_cards)
 
     def get_current_player(self) -> Player:
@@ -203,6 +210,7 @@ class Game:
             player.clear_bet()
         print('betting round has ended')
 
+
     def best_hand(self):
         player1_score = self.players[0].best_hand(self.community_cards)
         player2_score = self.players[1].best_hand(self.community_cards)
@@ -229,6 +237,8 @@ class Game:
             for winner in winners:
                 winner.add_chips(prize)
                 print(f'{winner.username} won {prize}chips')
+            # Visualize the plot if nobody folded
+            self.visualizer.probability_plot()
 
         self.pot = 0
 

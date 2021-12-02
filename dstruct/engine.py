@@ -19,6 +19,7 @@ class Engine:
         self.table.sit(player1)
         self.table.sit(player2)
 
+
     # Runs
     def go(self, runs):
 
