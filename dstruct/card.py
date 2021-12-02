@@ -43,3 +43,8 @@ class Card:
 
     def __str__(self):
         return f"{self._rank}{self._suit}"
+
+
+if __name__ == "__main__":
+    c = Card('s', '2')
+    c1 = c.to_treys()

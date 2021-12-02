@@ -1,36 +1,88 @@
 from deck import Deck
 from card import Card
 from player import Player
-import random
 from typing import List
+import random
 
 
-class Game:
+class AIplayer(Player):
+    pass
+
+class Trainer:
+    # Run a bunch of games and identify the probability of winning based on a hand
+
+    # Real Reward:
+    # When fold --> calculate the loss (how much you bet)
+    # When raise --> add to reward if win, subtract if lose
+    # When call --> reward stays at whatever the initial bet was (add/sub if win or loss)
+
+    # CounterFactual:
+    # Fold --> if you fold and would have won, you would regret not raising (regret value of raising would be size of
+    #            pot)
+    # Call --> if you call and win, you would regret not raising (regret value of calling would be the pre-flop
+    #           amount or value of going all-in, raise proportional to the pot (treys probability))
+    # Call --> if you call and lose, you would regret not folding (regret value of calling would be buy-in)
+    # Raise --> if you raise and lose, you would regret not folding (regret value of folding would be size of the raise)
+
+    # Regret scores = counterfactuals - real rewards
+
+    # EXAMPLE: -> hand : [regret scores]
+    # {"flush" : [40, 60, 100]} --> {"flush" : [20%, 30%, 50%]} --> 'flop 20% of the time, call 30% of the time,
+    #               raise 50% of the time (when hand is a flush)'
+
+    # Values --> [Fold, Call, Raise] (Regret values)
+    REGRETS = {
+        "Royal Flush": [0,0,0],
+        "Straight Flush": [0,0,0],
+        "Four of a Kind": [0,0,0],
+        "Full House": [0,0,0],
+        "Flush": [0,0,0],
+        "Straight": [0,0,0],
+        "Three of a Kind": [0,0,0],
+        "Two Pair": [0,0,0],
+        "One Pair": [0,0,0],
+        "High Card": [0,0,0],
+        "None": [0,0,0]
+    }
 
     def __init__(self, players, big_blind=20, small_blind=10):
         # List of players in this game
         if len(players) != 2:
             raise ValueError("Invalid number of players.")
         self.players: List[Player] = players
+
         # Cards on the table
         self.community_cards: List[Card] = []
+
         # Assign Big Blind and Small Blind amounts
         self.big_blind: int = big_blind
         self.small_blind: int = small_blind
+
         # Index of player with button (Dealer)
         # this never changes, as players are just rotated each game
         self.button: int = 0
+
         # The pot
         self.pot: int = 0
         self.deck: Deck = Deck()
+
         # The index of the current player who's turn it is - they must call, raise, or fold
         self.current: int = self.button
+
         # Represents if a Game is Over (ie only one player left or no more betting)
         self.game_over: bool = False
+
         # The current bet amount for the table
         self.bet = self.big_blind
 
+        # Keep track if you won or list the game
+        self.won: bool = False
+        self.raise_count = 0
+        self.call_count = 0
+        self.fold_count = 0
+
         self._ready_players()
+
 
     def get_players(self):
         print(self.players)
@@ -109,6 +161,7 @@ class Game:
         p.clear_bet()
         print(f'{p.username} has folded')
         self.game_over = True
+        self.fold_count += 1
 
     def call(self):
         """ The current player agrees to the current bet amount """
@@ -129,6 +182,7 @@ class Game:
             return
         print(f'{p.username} has added {added_chips} to call current bet of {self.bet}')
         p.increase_bet(self.bet)
+        self.call_count += 1
 
     def raise_bet(self, new_amount: int):
         """ Raise bet amount """
@@ -147,6 +201,7 @@ class Game:
             p.all_in = True
         self.bet = new_amount
         p.increase_bet(new_amount)
+        self.raise_count += 1
 
     def _max_raise(self):
         """Get the max raise possible, ie lowest of either players chips"""
@@ -177,8 +232,7 @@ class Game:
             if self.bet == int(max_raise):
                 bet = max_raise
             else:
-                bet = random.randint(self.bet + 1,
-                                     max_raise)
+                bet = random.randint(self.bet + 1, max_raise)
             self.raise_bet(bet)
 
         self.update_current_player()
@@ -222,6 +276,7 @@ class Game:
 
         return [self.players[1]]
 
+
     def payout(self):
         # count num of active players
         active = [player for player in self.players if player.is_active()]
@@ -237,13 +292,62 @@ class Game:
                 winner.add_chips(prize)
                 print(f'{winner.username} won {prize} chips')
 
+            # If the winner is the AI, then update the dictionary
+            # if winners == self.players[0]:
+
+
         self.pot = 0
+
 
     def post_game_cleanup(self):
         self.bet = 0
         for player in self.players:
             player.clear_bet()
-            
+
+    def play_pre_flop(self):
+        options = ["call", "raise"]
+        action_count = 0
+
+        while True:
+            hand_end = self.get_current_player().get_bet() == self.get_next_player().get_bet() \
+                       and action_count >= len(self.players)
+            if hand_end or self.game_over:
+                break
+
+            p = self.get_current_player()
+            print(f"turn: {p.username}")
+
+            choice = ""
+            all_in = self.get_current_player().all_in
+            if all_in:
+                choice = "call"
+
+            while choice not in options:
+                choice = random.choice(options)
+                print("chose to", choice)
+                if choice not in options:
+                    print("invalid action")
+            if choice == "call":
+                try:
+                    self.call()
+                except ValueError as err:
+                    print(err)
+                    break
+
+            if choice == "raise":
+                for retries in range(10):
+                    try:
+                        amount = input("How much would you like to raise? ")
+                        amount = int(amount)
+                        print("raised:", amount)
+                        self.raise_bet(amount)
+                        break
+                    except ValueError as err:
+                        print(err)
+
+            self.update_current_player()
+            action_count += 1
+
     def play_hand(self):
         options = ["fold", "call", "raise"]
         action_count = 0
@@ -263,7 +367,8 @@ class Game:
                 choice = "call"
 
             while choice not in options:
-                choice = input("enter one of three possible actions: fold, call, raise: ")
+                choice = random.choice(options)
+                print("chose to", choice)
                 if choice not in options:
                     print("invalid action")
 
@@ -284,8 +389,9 @@ class Game:
             if choice == "raise":
                 for retries in range(10):
                     try:
-                        amount = input("enter an integer amount to raise: ")
+                        amount = input("How much would you like to raise? ")
                         amount = int(amount)
+                        print("raised:", amount)
                         self.raise_bet(amount)
                         break
                     except ValueError as err:
@@ -293,6 +399,7 @@ class Game:
 
             self.update_current_player()
             action_count += 1
+
 
     def play_game(self):
         if self.game_over:
@@ -302,7 +409,7 @@ class Game:
 
             print("\nPRE-FLOP")
             self.draw_player_cards()
-            self.play_hand()
+            self.play_pre_flop()
 
             print("\nFLOP")
             self.deal_card(3)
@@ -321,9 +428,10 @@ class Game:
         self.payout()
         self.post_game_cleanup()
 
+
 if __name__ == "__main__":
-    player1 = Player(500, "AI")
+    player1 = AIplayer(500, "AI")
     player2 = Player(500, "you")
     p = [player1, player2]
-    g1 = Game(p, big_blind=20, small_blind=10)
+    g1 = Trainer(p, big_blind=20, small_blind=10)
     print(g1.play_game())

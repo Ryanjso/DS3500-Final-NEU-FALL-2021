@@ -85,6 +85,15 @@ class Player:
         """ Make a player inactive """
         self.active = False
 
+    def current_hand(self, table_cards):
+        hand = [card.to_treys() for card in self.cards]
+        board = [card.to_treys() for card in table_cards]
+
+        evaluator = Evaluator()
+        score = evaluator.evaluate(board, hand)
+        score_class = evaluator.get_rank_class(score)
+        return evaluator.class_to_string(score_class)
+
     def best_hand(self, table_cards):
         """ Get the Best Hand """
         # https://github.com/msaindon/deuces
@@ -108,3 +117,12 @@ class Player:
 
     def clear_hand(self):
         self.cards = []
+
+
+if __name__ == "__main__":
+    p= Player(500, "you")
+    c1 = Card('s', '2')
+    c2 = Card('d', '3')
+    table_cards = [Card('h', '2'), Card('c', '2'), Card('s', 'A')]
+    p.cards = [c1, c2]
+    print(p.current_hand(table_cards))
