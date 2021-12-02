@@ -27,6 +27,10 @@ class Table:
         # we dont need to tell game who dealer is
         # somewhere we need to determine if all these players can be added
         # either dropping players with no money somewhere else or here
+        if self.players[0].get_stack() == 0:
+            raise ValueError(f"Player {self.players[0]} must have greater than 0 chips.")
+        if self.players[1].get_stack() == 0:
+            raise ValueError(f"Player {self.players[1]} must have greater than 0 chips.")
         self.current_game = Game(
             players=self.players, big_blind=self.big_blind, small_blind=self.small_blind)
         self.current_game.play_game()

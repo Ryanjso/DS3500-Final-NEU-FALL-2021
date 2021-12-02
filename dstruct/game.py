@@ -312,6 +312,9 @@ class Game:
         if self.game_over:
             return
 
+        for x in self.players:
+            print("name: ", x.username, "stack: ", x.get_stack())
+
         while not self.game_over:
             self.set_blinds()
 
