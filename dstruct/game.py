@@ -311,8 +311,6 @@ class Game:
                 self.decision()
                 action_count += 1
 
-        self._reset_betting()
-
     def play_game(self):
         if self.game_over:
             return
