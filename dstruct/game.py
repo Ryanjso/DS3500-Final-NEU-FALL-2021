@@ -247,8 +247,14 @@ class Game:
             player.all_in = False
             
     def play_hand(self):
-        # TODO MAYBE: In normal poker the small blind always starts at the start of each round. currently we just do the next person
-        # after whoever was the last person to make a move in the previous round
+         # TODO MAYBE: In normal poker the small blind always starts at the start of each round. currently we just do the next person
+         # after whoever was the last person to make a move in the previous round
+         # NOT SURE but I think this also applies to when the AI plays against it's self
+
+        # TODO: Merge ali_branch and incorporate all the all_in bug fixes from that branch
+
+        # TODO MAYBE: would be nice to ask the player to enter their username (this probabaly would go in main or engine though)
+
 
         options = ["fold", "call", "raise"]
         action_count = 0
