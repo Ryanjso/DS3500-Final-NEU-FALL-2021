@@ -201,10 +201,10 @@ class Game:
             self.decision()
             action_count += 1
 
-        self.reset_betting()
+        self._reset_betting()
         print('betting round has ended')
 
-    def reset_betting(self):
+    def _reset_betting(self):
         self.bet = 0
         self.pot += sum([player.get_bet() for player in self.players])
         for player in self.players:
@@ -293,6 +293,8 @@ class Game:
 
             self.update_current_player()
             action_count += 1
+
+        self._reset_betting()
 
     def play_game(self):
         if self.game_over:
