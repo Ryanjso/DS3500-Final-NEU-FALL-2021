@@ -191,7 +191,7 @@ class Game:
         while True:
             # the hand ends if both players have the same bet and both have been visited
             hand_end = self.get_current_player().get_bet() == self.get_next_player().get_bet() \
-                       and action_count >= len(self.players)
+                and action_count >= len(self.players)
             if hand_end or self.game_over:
                 break
             print('current bet for each player:')
@@ -245,26 +245,25 @@ class Game:
             player.clear_bet()
             player.active = False
             player.all_in = False
-            
+
     def play_hand(self):
-         # TODO MAYBE: In normal poker the small blind always starts at the start of each round. currently we just do the next person
-         # after whoever was the last person to make a move in the previous round
-         # NOT SURE but I think this also applies to when the AI plays against it's self
+        # TODO MAYBE: In normal poker the small blind always starts at the start of each round. currently we just do the next person
+        # after whoever was the last person to make a move in the previous round
+        # NOT SURE but I think this also applies to when the AI plays against it's self
 
         # TODO: Merge ali_branch and incorporate all the all_in bug fixes from that branch
 
         # TODO MAYBE: would be nice to ask the player to enter their username (this probabaly would go in main or engine though)
-
 
         options = ["fold", "call", "raise"]
         action_count = 0
 
         while True:
             hand_end = self.get_current_player().get_bet() == self.get_next_player().get_bet() \
-                       and action_count >= len(self.players)
+                and action_count >= len(self.players)
 
             if hand_end or self.game_over:
-                self.reset_betting()
+                self._reset_betting()
                 break
 
             p = self.get_current_player()
@@ -277,7 +276,8 @@ class Game:
                     choice = "call"
 
                 while choice not in options:
-                    choice = input("enter one of three possible actions: fold, call, raise: ")
+                    choice = input(
+                        "enter one of three possible actions: fold, call, raise: ")
                     if choice not in options:
                         print("invalid action")
 
@@ -298,7 +298,8 @@ class Game:
                 if choice == "raise":
                     for retries in range(10):
                         try:
-                            amount = input("enter an integer amount to raise: ")
+                            amount = input(
+                                "enter an integer amount to raise: ")
                             amount = int(amount)
                             self.raise_bet(amount)
                             break
@@ -344,5 +345,3 @@ class Game:
         print("Final stats")
         for x in self.players:
             print("name: ", x.username, "stack: ", x.get_stack())
-
-
