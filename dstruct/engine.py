@@ -19,6 +19,21 @@ class Engine:
         self.table.sit(player1)
         self.table.sit(player2)
 
+    def play_ai(self, runs):
+        counter = 0
+
+        # Creates a new Game
+        while counter < runs:
+            print('============================')
+            print('Game ' + str(counter) + ' Started')
+
+            self.table.create_game()
+            self.table.current_game.play_game()
+            self.table.rotate_blinds()
+
+            counter += 1
+
+
     # Runs
     def go(self, runs):
 

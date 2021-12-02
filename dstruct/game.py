@@ -243,56 +243,73 @@ class Game:
         self.bet = 0
         for player in self.players:
             player.clear_bet()
+            player.active = False
+            player.all_in = False
             
     def play_hand(self):
+         # TODO MAYBE: In normal poker the small blind always starts at the start of each round. currently we just do the next person
+         # after whoever was the last person to make a move in the previous round
+         # NOT SURE but I think this also applies to when the AI plays against it's self
+
+        # TODO: Merge ali_branch and incorporate all the all_in bug fixes from that branch
+
+        # TODO MAYBE: would be nice to ask the player to enter their username (this probabaly would go in main or engine though)
+
+
         options = ["fold", "call", "raise"]
         action_count = 0
 
         while True:
             hand_end = self.get_current_player().get_bet() == self.get_next_player().get_bet() \
                        and action_count >= len(self.players)
+
             if hand_end or self.game_over:
+                self.reset_betting()
                 break
 
             p = self.get_current_player()
-            print(f"turn: {p.username}")
+            if p.username == "Dwight":
+                print(f"turn: {p.username}")
 
-            choice = ""
-            all_in = self.get_current_player().all_in
-            if all_in:
-                choice = "call"
+                choice = ""
+                all_in = self.get_current_player().all_in
+                if all_in:
+                    choice = "call"
 
-            while choice not in options:
-                choice = input("enter one of three possible actions: fold, call, raise: ")
-                if choice not in options:
-                    print("invalid action")
+                while choice not in options:
+                    choice = input("enter one of three possible actions: fold, call, raise: ")
+                    if choice not in options:
+                        print("invalid action")
 
-            if choice == "fold":
-                try:
-                    self.fold()
-                except ValueError as err:
-                    print(err)
-                    break
-
-            if choice == "call":
-                try:
-                    self.call()
-                except ValueError as err:
-                    print(err)
-                    break
-
-            if choice == "raise":
-                for retries in range(10):
+                if choice == "fold":
                     try:
-                        amount = input("enter an integer amount to raise: ")
-                        amount = int(amount)
-                        self.raise_bet(amount)
-                        break
+                        self.fold()
                     except ValueError as err:
                         print(err)
+                        break
 
-            self.update_current_player()
-            action_count += 1
+                if choice == "call":
+                    try:
+                        self.call()
+                    except ValueError as err:
+                        print(err)
+                        break
+
+                if choice == "raise":
+                    for retries in range(10):
+                        try:
+                            amount = input("enter an integer amount to raise: ")
+                            amount = int(amount)
+                            self.raise_bet(amount)
+                            break
+                        except ValueError as err:
+                            print(err)
+
+                self.update_current_player()
+                action_count += 1
+            else:
+                self.decision()
+                action_count += 1
 
         self._reset_betting()
 
@@ -301,6 +318,10 @@ class Game:
             return
         while not self.game_over:
             self.set_blinds()
+
+            # i'm pretty sure the BB and SB are correct, but might want to check
+            print("Big Blind: ", self.players[0].username)
+            print("Small Blind: ", self.players[1].username)
 
             print("\nPRE-FLOP")
             self.draw_player_cards()
@@ -322,4 +343,8 @@ class Game:
         print("\nSHOWDOWN")
         self.payout()
         self.post_game_cleanup()
+        print("Final stats")
+        for x in self.players:
+            print("name: ", x.username, "stack: ", x.get_stack())
+
 
