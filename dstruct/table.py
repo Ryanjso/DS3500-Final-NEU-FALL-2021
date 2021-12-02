@@ -18,17 +18,22 @@ class Table:
         self.current_game = None
 
     def rotate_blinds(self) -> None:
-        """Rotate players so BB and SB change
-        """
+        """Rotate players so BB and SB change """
         self.players.rotate(1)
 
-    def create_game(self):
+    def new_game(self):
+        """ Creates and starts a new game """
         # Since Dealer is always 0 and we are rotating players
         # we dont need to tell game who dealer is
         # somewhere we need to determine if all these players can be added
         # either dropping players with no money somewhere else or here
+        if self.players[0].get_stack() == 0:
+            raise ValueError(f"Player {self.players[0]} must have greater than 0 chips.")
+        if self.players[1].get_stack() == 0:
+            raise ValueError(f"Player {self.players[1]} must have greater than 0 chips.")
         self.current_game = Game(
             players=self.players, big_blind=self.big_blind, small_blind=self.small_blind)
+        self.current_game.play_game()
 
     def sit(self, player: Player):
         self.players.append(player)
@@ -38,3 +43,5 @@ class Table:
 
     def get_players(self):
         return self.players
+
+
