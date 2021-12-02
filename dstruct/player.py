@@ -96,8 +96,9 @@ class Player:
         # Evaluate the score and the corresponding score class
         evaluator = Evaluator()
 
+        # Evaluate the hand rank
         score = evaluator.evaluate(board, hand)
-        rank = round((1.0 - float(score) / 7462) * 100, 2)
+        rank = 1.0 - float(score) / 7462
         return rank
 
     def best_hand(self, table_cards):
