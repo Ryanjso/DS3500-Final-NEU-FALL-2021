@@ -19,21 +19,6 @@ class Engine:
         self.table.sit(player1)
         self.table.sit(player2)
 
-    def play_ai(self, runs):
-        counter = 0
-
-        # Creates a new Game
-        while counter < runs:
-            print('============================')
-            print('Game ' + str(counter) + ' Started')
-
-            self.table.create_game()
-            self.table.current_game.play_game()
-            self.table.rotate_blinds()
-
-            counter += 1
-
-
     # Runs
     def go(self, runs):
 
@@ -49,32 +34,7 @@ class Engine:
 
             print(f'Players in this game-> {self.table.get_players()}')
 
-            # Creates a new Game
-            self.table.create_game()
-
-            # set blinds
-            self.table.current_game.set_blinds()
-
-            # assign player cards
-            self.table.current_game.draw_player_cards()
-
-            # betting and cards
-            self.table.current_game.betting()
-            self.table.current_game.deal_card(3)
-
-            self.table.current_game.betting()
-            self.table.current_game.deal_card(1)
-
-            self.table.current_game.betting()
-            self.table.current_game.deal_card(1)
-
-            self.table.current_game.betting()
-
-            # winner decision + payout
-            self.table.current_game.payout()
-
-            # cleanup
-            self.table.current_game.post_game_cleanup()
+            self.table.new_game()
 
             print('Game ' + str(counter) + ' Over')
 
