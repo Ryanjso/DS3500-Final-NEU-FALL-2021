@@ -62,6 +62,9 @@ class Trainer:
         # The current bet amount for the table
         self.bet = self.big_blind
 
+        self.reward = 0
+        self.counterfactual = 0
+
         self._ready_players()
 
     def get_players(self):
@@ -226,6 +229,47 @@ class Trainer:
                 winner.add_chips(prize)
                 print(f'{winner.username} won {prize} chips')
 
+        if winners.ai == True:
+            hand = winners.current_hand(self.community_cards)
+            self.reward += prize
+
+            # The regret score of winning is not betting more
+            Trainer.regrets_dict[hand][1] += (self.big_blind - self.reward)
+
+            # If you raise and win, you have no regrets
+            Trainer.regrets_dict[hand][2] = 0
+
+         # check which player is the AI
+        elif winners == self.players[0] and winners.ai == False:
+            loser = self.player[1]
+            hand = loser.current_hand(self.commnity_cards)
+
+            self.reward -= prize
+
+            # Regret for not folding is the reward lost
+            Trainer.regrets_dict[hand][0] += (prize - self.reward)
+            # Regret for calling is the buy-in
+            Trainer.regrets_dict[hand][1] += (self.big_blind - self.reward)
+            # Regret for raising is the bet amount - the reward (the pot)
+            Trainer.regrets_dict[hand][2] += (self.pot)
+
+        else:
+            loser = self.player[0]
+            hand = loser.current_hand(self.commnity_cards)
+
+            self.reward -= prize
+
+            # Regret for not folding is the reward lost
+            Trainer.regrets_dict[hand][0] += (prize - self.reward)
+            # Regret for calling is the buy-in
+            Trainer.regrets_dict[hand][1] += (self.big_blind - self.reward)
+            # Regret for raising is the bet amount - the reward (the pot)
+            Trainer.regrets_dict[hand][2] += (self.pot)
+
+        # Reset the reward for the next round
+        self.reward = 0
+
+
         self.pot = 0
 
     def post_game_cleanup(self):
@@ -253,14 +297,14 @@ class Trainer:
 
         if not p.is_ai():
             while choice not in options:
-                choice = input("enter one of three possible actions: fold, call, raise: ")
+                choice = random.choice(options)
                 if choice not in options:
                     print("invalid action")
 
             if choice == "raise":
                 for retries in range(10):
                     try:
-                        amount = input("enter an integer amount to raise: ")
+                        amount = input("enter an integer amount to raise: ")  # Not sure since needs to auto-generate
                         amount = int(amount)
                         self._check_raise(amount)
                         return choice, amount
@@ -339,6 +383,38 @@ class Trainer:
             self.update_current_player()
             action_count += 1
 
+
+    def play_pre_flop(self):
+        " Pre-flop only allows for calling for training purposes"
+        action_count = 0
+        while True:
+            hand_end = self.get_current_player().get_bet() == self.get_next_player().get_bet() \
+                and action_count >= len(self.players)
+
+            if hand_end or self.game_over:
+                self._reset_betting()
+                break
+
+            p = self.get_current_player()
+
+            print('current bet for each player:')
+            for player in self.players:
+                print(f'{player.username}\'s bet is {player.get_bet()}')
+            print(f"turn: {p.username}")
+
+            choice = 'call'
+            option = choice[0]
+            amount = choice[1]
+
+            if option == "call":
+                try:
+                    self.call()
+                except ValueError as err:
+                    print(err)
+                    break
+
+
+
     def play_game(self):
         """ Plays the entire game through """
         if self.game_over:
@@ -350,13 +426,15 @@ class Trainer:
         while not self.game_over:
             self.set_blinds()
 
+            reward = 0
+
             # i'm pretty sure the BB and SB are correct, but might want to check
             print("Big Blind: ", self.players[0].username)
             print("Small Blind: ", self.players[1].username)
 
             print("\nPRE-FLOP")
             self.draw_player_cards()
-            self.play_hand()
+            self.play_pre_flop()
 
             print("\nFLOP")
             self.deal_card(3)
