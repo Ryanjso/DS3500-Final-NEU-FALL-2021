@@ -32,6 +32,8 @@ class Game:
         self.bet = self.big_blind
         # store data to visualize the hand percentage ranks
         self.visualizer: Visualizer = Visualizer()
+        # Turn on / off the visualization functionality
+        self.visualizer.on = False
         # start poker ai
 
         self._ready_players()
