@@ -284,7 +284,8 @@ class Game:
             print('current bet for each player:')
             for player in self.players:
                 print(f'{player.username}\'s bet is {player.get_bet()}')
-            print(f"turn: {p.username}")
+            print(f"pot is {self.pot}")
+            print(f"turn: {p.username}\n")
 
             choice = self._get_choice()
             option = choice[0]
