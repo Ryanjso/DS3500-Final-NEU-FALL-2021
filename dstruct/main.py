@@ -1,13 +1,11 @@
 from engine import Engine
+from engine import Train_engine
 
 
 def main():
 
-    poker = Engine()
-    poker.go(runs=1)
-    poker.play_ai(2)
-
-    poker.go(100)
+    poker = Train_engine()
+    poker.go(1000)
 
 
 

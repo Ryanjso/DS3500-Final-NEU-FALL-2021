@@ -26,18 +26,17 @@ class Trainer:
 
     # Values --> [Fold, Call, Raise] (Regret values)
     regrets_dict = {
-        "royal flush": [0,0,0],
-        "straight flush": [0,0,0],
-        "four of a kind": [0,0,0],
-        "full house": [0,0,0],
-        "flush": [0,0,0],
-        "straight": [0,0,0],
-        "three of a kind": [0,0,0],
-        "two pair": [0,0,0],
-        "one pair": [0,0,0],
-        "high card": [0,0,0]
+        "Royal Flush": [0,0,0],
+        "Straight Flush": [0,0,0],
+        "Four of a Kind": [0,0,0],
+        "Full House": [0,0,0],
+        "Flush": [0,0,0],
+        "Straight": [0,0,0],
+        "Three of a Kind": [0,0,0],
+        "Two Pair": [0,0,0],
+        "Pair": [0,0,0],
+        "High Card": [0,0,0]
     }
-
 
     def __init__(self, players, big_blind=20, small_blind=10):
         # List of players in this game
@@ -207,12 +206,12 @@ class Trainer:
         player2_score = self.players[1].best_hand(self.community_cards)
 
         if player1_score == player2_score:
-            return [self.players[0], self.players[1]]
+            return {"winner": [self.players[0], self.players[1]], "loser": []}
 
         if player1_score < player2_score:
-            return [self.players[0]]
+            return {"winner": [self.players[0]], "loser": [self.players[1]]}
 
-        return [self.players[1]]
+        return {"winner": [self.players[1]], "loser": [self.players[0]]}
 
     def payout(self):
         # count num of active players
@@ -221,7 +220,7 @@ class Trainer:
             active[0].add_chips(self.pot)
             print(f'Paid {active[0].username} {self.pot} chips')
         else:
-            winners = self.best_hand()
+            winners = self.best_hand()["winner"]
             if len(winners) > 1:
                 print('There was a tie!')
             prize = int(self.pot / len(winners))
@@ -229,54 +228,42 @@ class Trainer:
                 winner.add_chips(prize)
                 print(f'{winner.username} won {prize} chips')
 
-        if winners.ai == True:
-            hand = winners.current_hand(self.community_cards)
-            self.reward += prize
+                if winner.ai:
+                    hand = winner.current_hand(self.community_cards)
+                    self.reward += prize
 
-            # The regret score of winning is not betting more
-            Trainer.regrets_dict[hand][1] += (self.big_blind - self.reward)
+                    # The regret score of winning is not betting more
+                    self.regrets_dict[hand][1] += (self.big_blind - self.reward)
 
-            # If you raise and win, you have no regrets
-            Trainer.regrets_dict[hand][2] = 0
+                    # If you raise and win, you have no regrets
+                    self.regrets_dict[hand][2] = 0
 
-         # check which player is the AI
-        elif winners == self.players[0] and winners.ai == False:
-            loser = self.player[1]
-            hand = loser.current_hand(self.commnity_cards)
+            #loser is a list of the losing player (always either 1 player or 0 players)
+            losers = self.best_hand()["loser"]
 
-            self.reward -= prize
+            # if loser isn't empty
+            if losers:
+                loser = losers[0]
+                if loser.ai:
+                    hand = loser.current_hand(self.community_cards)
 
-            # Regret for not folding is the reward lost
-            Trainer.regrets_dict[hand][0] += (prize - self.reward)
-            # Regret for calling is the buy-in
-            Trainer.regrets_dict[hand][1] += (self.big_blind - self.reward)
-            # Regret for raising is the bet amount - the reward (the pot)
-            Trainer.regrets_dict[hand][2] += (self.pot)
+                    self.reward -= prize
 
-        else:
-            loser = self.player[0]
-            hand = loser.current_hand(self.commnity_cards)
+                    # Regret for not folding is the reward lost
+                    self.regrets_dict[hand][0] += (prize - self.reward)
+                    # Regret for calling is the buy-in
+                    self.regrets_dict[hand][1] += (self.big_blind - self.reward)
+                    # Regret for raising is the bet amount - the reward (the pot)
+                    self.regrets_dict[hand][2] += (self.pot)
 
-            self.reward -= prize
-
-            # Regret for not folding is the reward lost
-            Trainer.regrets_dict[hand][0] += (prize - self.reward)
-            # Regret for calling is the buy-in
-            Trainer.regrets_dict[hand][1] += (self.big_blind - self.reward)
-            # Regret for raising is the bet amount - the reward (the pot)
-            Trainer.regrets_dict[hand][2] += (self.pot)
-
-        # Reset the reward for the next round
+        # Reset the reward and pot for the next game
         self.reward = 0
-
-
         self.pot = 0
 
     def post_game_cleanup(self):
         self.bet = 0
         for player in self.players:
             player.clear_bet()
-            player.active = False
             player.all_in = False
 
     def _reset_betting(self):
@@ -315,7 +302,7 @@ class Trainer:
                 return choice, None
 
         else:
-            weights = (20, 65, 15)
+            weights = (0, 85, 15)
             choice = random.choices(options, weights, k=1)[0]
 
             if choice == "raise":
@@ -334,8 +321,6 @@ class Trainer:
          # TODO MAYBE: In normal poker the small blind always starts at the start of each round. currently we just do the next person
          # after whoever was the last person to make a move in the previous round
          # NOT SURE but I think this also applies to when the AI plays against it's self
-
-        # TODO: Merge ali_branch and incorporate all the all_in bug fixes from that branch
 
         # TODO MAYBE: would be nice to ask the player to enter their username (this probabaly would go in main or engine though)
 
@@ -434,7 +419,7 @@ class Trainer:
 
             print("\nPRE-FLOP")
             self.draw_player_cards()
-            self.play_pre_flop()
+            self.play_hand()
 
             print("\nFLOP")
             self.deal_card(3)
@@ -455,23 +440,28 @@ class Trainer:
         print("Final stats")
         for x in self.players:
             print("name: ", x.username, "stack: ", x.get_stack())
+        print("REGRETS*****************")
+        self.convert_totals()
+        for x in self.regrets_dict:
+            print(x," : ", self.regrets_dict[x])
 
 
     def convert_totals(self):
 
-        for hand in Trainer.regrets_dict:
-            total = sum(Trainer.regrets_dict[hand])
+        for hand in self.regrets_dict:
+            total = sum(self.regrets_dict[hand])
 
-            Trainer.regrets_dict[hand] = [round((Trainer.regrets_dict[hand][0] / total), 3),
-                                          round((Trainer.regrets_dict[hand][1] / total), 3),
-                                          round((Trainer.regrets_dict[hand][2] / total), 3)
-        return Trainer.regrets_dict
+            if not total == 0:
+                self.regrets_dict[hand] = [round((self.regrets_dict[hand][0] / total), 3),
+                                          round((self.regrets_dict[hand][1] / total), 3),
+                                          round((self.regrets_dict[hand][2] / total), 3)]
+
 
 
 if __name__ == "__main__":
     player1 = Player(500, "AI", True)
-    player2 = Player(500, "you", False)
+    player2 = Player(500, "you", True)
     p = [player1, player2]
     g1 = Trainer(p, big_blind=20, small_blind=10)
-    print(g1.play_game())
+    g1.play_game()
 

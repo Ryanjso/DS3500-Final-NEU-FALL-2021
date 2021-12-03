@@ -119,6 +119,9 @@ class Player:
     def clear_hand(self):
         self.cards = []
 
+    def is_ai(self) -> bool:
+        return self.ai
+
 
 if __name__ == "__main__":
     p= Player(500, "you")
