@@ -426,8 +426,6 @@ class Trainer:
         while not self.game_over:
             self.set_blinds()
 
-            reward = 0
-
             # i'm pretty sure the BB and SB are correct, but might want to check
             print("Big Blind: ", self.players[0].username)
             print("Small Blind: ", self.players[1].username)
@@ -450,7 +448,7 @@ class Trainer:
             self.game_over = True
 
         print("\nSHOWDOWN")
-        self.payout()
+        # self.payout()
         self.post_game_cleanup()
         print("Final stats")
         for x in self.players:
@@ -464,7 +462,7 @@ class Trainer:
 
             Trainer.regrets_dict[hand] = [round((Trainer.regrets_dict[hand][0] / total), 3),
                                           round((Trainer.regrets_dict[hand][1] / total), 3),
-                                          round((Trainer.regrets_dict[hand][2] / total), 3)
+                                          round((Trainer.regrets_dict[hand][2] / total), 3)]
         return Trainer.regrets_dict
 
 
