@@ -12,13 +12,12 @@ class Engine:
         # New table
         self.table = Table(big_blind=20, small_blind=10)
 
-        player1 = Player(500, "Dwight")
+        player1 = Player(500, "Poker AI")
         player2 = Player(500, "Michael")
 
         # Add players to table
         self.table.sit(player1)
         self.table.sit(player2)
-
 
     # Runs
     def go(self, runs):
@@ -33,7 +32,7 @@ class Engine:
             # Make sure there are 2 players with > 0 chips
             self.top_up_players()
 
-            print(f'Players in this game-> {self.table.get_players()}')
+            print(f'Players in this game-> {list(self.table.get_players())}')
 
             # Creates a new Game
             self.table.create_game()

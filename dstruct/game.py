@@ -4,6 +4,7 @@ from player import Player
 from visualizer import Visualizer
 import random
 from typing import List
+from poker_ai import PokerAI
 
 
 class Game:
@@ -30,6 +31,8 @@ class Game:
         self.bet = self.big_blind
         # store data to visualize the hand percentage ranks
         self.visualizer: Visualizer = Visualizer()
+        # start the AI
+        self.ai: PokerAI = PokerAI()
 
         self._ready_players()
 
@@ -87,6 +90,8 @@ class Game:
         for player in self.players:
             username, score = player.username, player.hand_rank(self.community_cards)
             self.visualizer.add_value(username, score)
+            hand_class = player.hand_name_rank(self.community_cards)
+            self.ai.add_rank(username, hand_class)
         print(self.community_cards)
 
     def get_current_player(self) -> Player:
@@ -115,6 +120,7 @@ class Game:
         # cause it's headsup poker
         self.game_over = True
         print(f'{p.username} has folded')
+        self.ai.add_move(p.username, "fold", 0)
 
     def call(self):
         """ The current player agrees to the current bet amount """
@@ -126,13 +132,16 @@ class Game:
         else:
             p2 = self.players[1]
 
-        # calling someone elses all in means you're all in
+        # calling someone else's all in means you're all in
         if p2.all_in:
             p.all_in = True
 
         if added_chips == 0:
+            self.ai.add_move(p.username, "call", 0)
             print(f'{p.username} has checked')
             return
+        else:
+            self.ai.add_move(p.username, "call", added_chips)
         print(f'{p.username} has added {added_chips} to call current bet of {self.bet}')
         p.increase_bet(self.bet)
 
@@ -148,6 +157,7 @@ class Game:
             # betting your entire stack means you're all in
             p.all_in = True
         self.bet = new_amount
+        self.ai.add_move(self.get_current_player().username, "raise_bet", new_amount)
         p.increase_bet(new_amount)
 
     def _max_raise(self):
@@ -175,6 +185,7 @@ class Game:
         elif choice == "raise_bet":
             # get random amount up to half of player stack
             max_raise = self._max_raise()
+            # add choice
 
             if self.bet == int(max_raise):
                 bet = max_raise
@@ -210,7 +221,6 @@ class Game:
             player.clear_bet()
         print('betting round has ended')
 
-
     def best_hand(self):
         player1_score = self.players[0].best_hand(self.community_cards)
         player2_score = self.players[1].best_hand(self.community_cards)
@@ -231,14 +241,18 @@ class Game:
             print(f'Paid {active[0].username} {self.pot} chips')
         else:
             winners = self.best_hand()
+            prize = self.pot / len(winners)
             if len(winners) > 1:
                 print('There was a tie!')
-            prize = self.pot / len(winners)
+            else:
+                self.ai.update_regret(winners[0].username, prize)
+
             for winner in winners:
                 winner.add_chips(prize)
                 print(f'{winner.username} won {prize}chips')
             # Visualize the plot if nobody folded
             self.visualizer.probability_plot()
+            self.ai.show_data()
 
         self.pot = 0
 
