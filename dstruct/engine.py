@@ -36,6 +36,9 @@ class Engine:
 
             self.table.new_game()
 
+            # rotate big and small blind
+            self.table.rotate_blinds()
+
             print('Game ' + str(counter) + ' Over')
 
             counter += 1

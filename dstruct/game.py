@@ -111,7 +111,6 @@ class Game:
 
     def call(self):
         """ The current player agrees to the current bet amount """
-        # TODO - determine what to do if player does not have enough chips to match current bet
         p = self.get_current_player()
         added_chips = self.bet - p.get_bet()
         if self.current == 1:
@@ -123,11 +122,16 @@ class Game:
         if p2.all_in:
             p.all_in = True
 
-        if added_chips == 0:
+        if added_chips == 0 or p.get_stack() == 0:
             print(f'{p.username} has checked')
-            return
-        print(f'{p.username} has added {added_chips} to call current bet of {self.bet}')
-        p.increase_bet(self.bet)
+        elif added_chips >= p.get_stack():
+            # if you don't have enough chips to call but want to call then you are now all in
+            print(f'{p.username} has gone all in to call current bet of {self.bet}')
+            p.all_in = True
+            p.increase_bet(p.get_bet() + p.get_stack())
+        else:
+            print(f'{p.username} has added {added_chips} to call current bet of {self.bet}')
+            p.increase_bet(self.bet)
 
     def _check_raise(self, new_amount: int):
         """ Check if raise amount is valid """
@@ -166,6 +170,7 @@ class Game:
         """Get the max raise possible, ie lowest of either players chips"""
         return min([player.get_stack() + player.get_bet() for player in self.players])
 
+
     def best_hand(self):
         player1_score = self.players[0].best_hand(self.community_cards)
         player2_score = self.players[1].best_hand(self.community_cards)
@@ -199,7 +204,6 @@ class Game:
         self.bet = 0
         for player in self.players:
             player.clear_bet()
-            player.active = False
             player.all_in = False
 
     def _reset_betting(self):
@@ -215,7 +219,7 @@ class Game:
         p = self.get_current_player()
         choice = ""
 
-        if p.all_in or self.get_next_player().all_in:
+        if p.all_in:
             return "call", None
 
         if not p.is_ai():
