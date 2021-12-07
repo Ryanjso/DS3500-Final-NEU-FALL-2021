@@ -56,13 +56,13 @@ class Engine:
                                            for i in range(6))
                 new_player = Player(500, name, ai=True)
                 self.table.sit(new_player)
-                print('=============sitting new')
+                #print('=============sitting new')
 
             # Max chips someone can have is 1000
             if players[i].get_stack() > 1000:
                 players[i].subtract_chips(players[i].get_stack() - 1000)
 
-class Train_engine:
+class Train_engine(Engine):
 
     # Constructs new Engine
     def __init__(self) -> None:
@@ -84,39 +84,19 @@ class Train_engine:
 
         while counter < runs:
 
-            print('============================')
-            print('Game ' + str(counter) + ' Started')
-
             # Make sure there are 2 players with > 0 chips
             self.top_up_players()
-
-            print(f'Players in this game-> {self.table.get_players()}')
 
             self.table.new_game()
 
             # rotate big and small blind
             self.table.rotate_blinds()
 
-            print('Game ' + str(counter) + ' Over')
-
+            if counter % 5000 == 0:
+                print("\nRun # :", counter)
+                for x in self.table.current_game.regrets_dict:
+                    print(x, " : ", self.table.current_game.regrets_dict[x])
             counter += 1
-
-    def top_up_players(self):
-        players = self.table.get_players()
-        for i in range(len(players)):
-            if players[i].get_stack() == 0:
-                self.table.stand(i)
-
-                letters = string.ascii_lowercase
-                name = 'player_' + ''.join(random.choice(letters)
-                                           for i in range(6))
-                new_player = Player(500, name, ai=True)
-                self.table.sit(new_player)
-                print('=============sitting new')
-
-            # Max chips someone can have is 1000
-            if players[i].get_stack() > 1000:
-                players[i].subtract_chips(players[i].get_stack() - 1000)
 
 
 

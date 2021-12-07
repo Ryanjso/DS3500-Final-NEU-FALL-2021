@@ -44,22 +44,9 @@ class Table:
     def get_players(self):
         return self.players
 
-class Train_table:
+class Train_table(Table):
     def __init__(self, big_blind=20, small_blind=10):
-
-        # List of players at this table
-        # Players at the table are assumed to be sitting in
-        self.players: Deque[Player] = deque([])
-
-        # Assign Big Blind and Small Blind amounts
-        self.big_blind = big_blind
-        self.small_blind = small_blind
-
-        self.current_game = None
-
-    def rotate_blinds(self) -> None:
-        """Rotate players so BB and SB change """
-        self.players.rotate(1)
+        super().__init__(big_blind, small_blind)
 
     def new_game(self):
         """ Creates and starts a new game """
@@ -75,13 +62,5 @@ class Train_table:
             players=self.players, big_blind=self.big_blind, small_blind=self.small_blind)
         self.current_game.play_game()
 
-    def sit(self, player: Player):
-        self.players.append(player)
-
-    def stand(self, player_idx):
-        del self.players[player_idx]
-
-    def get_players(self):
-        return self.players
 
 
