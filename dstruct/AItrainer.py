@@ -27,7 +27,6 @@ class Trainer(Game):
 
     # Values --> [Fold, Call, Raise] (Regret values)
     regrets_dict = {
-        "royal flush": [0,0,0],
         "straight flush": [0,0,0],
         "four of a kind": [0,0,0],
         "full house": [0,0,0],
@@ -59,23 +58,21 @@ class Trainer(Game):
         active = [player for player in self.players if player.is_active()]
         if len(active) == 1:
             active[0].add_chips(self.pot)
-            #print(f'Paid {active[0].username} {self.pot} chips')
+            print(f'Paid {active[0].username} {self.pot} chips')
         else:
             winners = self.best_hand()["winner"]
-            #if len(winners) > 1:
-                #print('There was a tie!')
+            if len(winners) > 1:
+                print('There was a tie!')
             prize = int(self.pot / len(winners))
             for winner in winners:
                 winner.add_chips(prize)
-                #print(f'{winner.username} won {prize} chips')
+                print(f'{winner.username} won {prize} chips')
 
                 if winner.ai:
                     hand = winner.hand_name_rank(self.community_cards)
 
-                    # The regret score of winning is not betting more
+                    # if you win next time you want to raise or sometimes call
                     self.regrets_dict[hand][1] += ((prize/2) + self.big_blind)
-
-                    # If you raise and win, you have no regrets
                     self.regrets_dict[hand][2] += (self.big_blind + prize)
 
             #loser is a list of the losing player (always either 1 player or 0 players)
@@ -87,11 +84,9 @@ class Trainer(Game):
                 if loser.ai:
                     hand = loser.hand_name_rank(self.community_cards)
 
-                    # Regret for not folding is the reward lost
+                    # if you lose next time you want to fold or maybe call
                     self.regrets_dict[hand][0] += (self.big_blind + prize)
-                    # Regret for calling is the buy-in
                     self.regrets_dict[hand][1] += (self.big_blind + (prize/4))
-                    # Regret for raising is the bet amount - the reward (the pot)
 
         # Reset the pot for the next game
         self.pot = 0
@@ -101,38 +96,38 @@ class Trainer(Game):
         if self.game_over:
             return
 
-        #for x in self.players:
-            #print("name: ", x.username, "stack: ", x.get_stack())
+        for x in self.players:
+            print("name: ", x.username, "stack: ", x.get_stack())
 
         while not self.game_over:
             self.set_blinds()
 
-            #print("Big Blind: ", self.players[0].username)
-            #print("Small Blind: ", self.players[1].username)
+            print("Big Blind: ", self.players[0].username)
+            print("Small Blind: ", self.players[1].username)
 
-            #print("\nPRE-FLOP")
+            print("\nPRE-FLOP")
             self.draw_player_cards()
             self.play_hand()
 
-            #print("\nFLOP")
+            print("\nFLOP")
             self.deal_card(3)
             self.play_hand()
 
-            #print("\nTURN")
+            print("\nTURN")
             self.deal_card(1)
             self.play_hand()
 
-            #print("\nRIVER")
+            print("\nRIVER")
             self.deal_card(1)
             self.play_hand()
             self.game_over = True
 
-        #print("\nSHOWDOWN")
+        print("\nSHOWDOWN")
         self.payout()
         self.post_game_cleanup()
-        #print("Final stats")
-        #for x in self.players:
-            #print("name: ", x.username, "stack: ", x.get_stack())
+        print("Final stats")
+        for x in self.players:
+            print("name: ", x.username, "stack: ", x.get_stack())
 
 
     def convert_totals(self):

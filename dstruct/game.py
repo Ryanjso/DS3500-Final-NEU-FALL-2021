@@ -12,7 +12,6 @@ def update_prob(data):
 
 class Game:
     probability_dict = {
-        "royal flush": [0.33, 0.33, 0.33],
         "straight flush": [0.33, 0.33, 0.33],
         "four of a kind": [0.33, 0.33, 0.33],
         "full house": [0.33, 0.33, 0.33],
@@ -51,7 +50,6 @@ class Game:
         self.visualizer: Visualizer = Visualizer()
         # Turn on / off the visualization functionality
         self.visualizer.on = False
-        # start poker ai
 
         self._ready_players()
 
@@ -90,7 +88,7 @@ class Game:
 
         self.update_current_player()
 
-        #print(f'Blinds set, pot is  {self.pot}, bet is  {self.bet}')
+        print(f'Blinds set, pot is  {self.pot}, bet is  {self.bet}')
 
     def draw_player_cards(self):
         # Have players draw two cards
@@ -102,7 +100,7 @@ class Game:
     def deal_card(self, number: int):
         if self.game_over:
             return
-        #print('Dealing Community Cards')
+        print('Dealing Community Cards')
 
         self.community_cards += self.deck.draw(number)
 
@@ -110,7 +108,7 @@ class Game:
             username, score = player.username, player.hand_rank(self.community_cards)
             self.visualizer.add_value(username, score)
 
-        #print(self.community_cards)
+        print(self.community_cards)
 
     def get_current_player(self) -> Player:
         """ Get the current player """
@@ -136,7 +134,7 @@ class Game:
         # cause it's headsup poker
         self.pot += p.get_bet()
         p.clear_bet()
-        #print(f'{p.username} has folded')
+        print(f'{p.username} has folded')
         self.game_over = True
 
     def call(self):
@@ -154,14 +152,14 @@ class Game:
 
         if added_chips == 0 or p.get_stack() == 0:
             pass
-            #print(f'{p.username} has checked')
+            print(f'{p.username} has checked')
         elif added_chips >= p.get_stack():
             # if you don't have enough chips to call but want to call then you are now all in
-            #print(f'{p.username} has gone all in to call current bet of {self.bet}')
+            print(f'{p.username} has gone all in to call current bet of {self.bet}')
             p.all_in = True
             p.increase_bet(p.get_bet() + p.get_stack())
         else:
-            #print(f'{p.username} has added {added_chips} to call current bet of {self.bet}')
+            print(f'{p.username} has added {added_chips} to call current bet of {self.bet}')
             p.increase_bet(self.bet)
 
     def _check_raise(self, new_amount: int):
@@ -190,7 +188,7 @@ class Game:
         """ Raise bet amount """
         p = self.get_current_player()
         self._check_raise(new_amount)
-        #print(f'{p.username} has raised to {new_amount}')
+        print(f'{p.username} has raised to {new_amount}')
         if new_amount == p.stack:
             # betting your entire stack means you're all in
             p.all_in = True
@@ -219,15 +217,15 @@ class Game:
         active = [player for player in self.players if player.is_active()]
         if len(active) == 1:
             active[0].add_chips(self.pot)
-            #print(f'Paid {active[0].username} {self.pot} chips')
+            print(f'Paid {active[0].username} {self.pot} chips')
         else:
             winners = self.best_hand()
-            #if len(winners) > 1:
-                #print('There was a tie!')
+            if len(winners) > 1:
+                print('There was a tie!')
             prize = int(self.pot / len(winners))
             for winner in winners:
                 winner.add_chips(prize)
-                #print(f'{winner.username} won {prize} chips')
+                print(f'{winner.username} won {prize} chips')
 
             # Visualize the plot if nobody folded
             self.visualizer.probability_plot()
@@ -307,11 +305,11 @@ class Game:
 
             p = self.get_current_player()
 
-            # print('current bet for each player:')
-            # for player in self.players:
-            #     print(f'{player.username}\'s bet is {player.get_bet()}')
-            # print(f"pot is {self.pot}")
-            # print(f"turn: {p.username}\n")
+            print('current bet for each player:')
+            for player in self.players:
+                print(f'{player.username}\'s bet is {player.get_bet()}')
+            print(f"pot is {self.pot}")
+            print(f"turn: {p.username}\n")
 
 
             choice = self._get_choice()
@@ -322,21 +320,21 @@ class Game:
                 try:
                     self.fold()
                 except ValueError as err:
-                    #print(err)
+                    print(err)
                     break
 
             if option == "call":
                 try:
                     self.call()
                 except ValueError as err:
-                    #print(err)
+                    print(err)
                     break
 
             if option == "raise":
                 try:
                     self.raise_bet(amount)
                 except ValueError as err:
-                    #print(err)
+                    print(err)
                     break
 
             self.update_current_player()
@@ -347,39 +345,38 @@ class Game:
         if self.game_over:
             return
 
-        #for x in self.players:
-            #print("name: ", x.username, "stack: ", x.get_stack())
+        for x in self.players:
+            print("name: ", x.username, "stack: ", x.get_stack())
 
         while not self.game_over:
             self.set_blinds()
 
-            # i'm pretty sure the BB and SB are correct, but might want to check
-            #print("Big Blind: ", self.players[0].username)
-            #print("Small Blind: ", self.players[1].username)
+            print("Big Blind: ", self.players[0].username)
+            print("Small Blind: ", self.players[1].username)
 
-            #print("\nPRE-FLOP")
+            print("\nPRE-FLOP")
             self.draw_player_cards()
             self.play_hand()
 
-            #print("\nFLOP")
+            print("\nFLOP")
             self.deal_card(3)
             self.play_hand()
 
-            #print("\nTURN")
+            print("\nTURN")
             self.deal_card(1)
             self.play_hand()
 
-            #print("\nRIVER")
+            print("\nRIVER")
             self.deal_card(1)
             self.play_hand()
             self.game_over = True
 
-        #print("\nSHOWDOWN")
+        print("\nSHOWDOWN")
         self.payout()
         self.post_game_cleanup()
-        #print("Final stats")
-        #for x in self.players:
-            #print("name: ", x.username, "stack: ", x.get_stack())
+        print("Final stats")
+        for x in self.players:
+            print("name: ", x.username, "stack: ", x.get_stack())
 
 
 
@@ -388,5 +385,5 @@ if __name__ == "__main__":
     player2 = Player(500, "you")
     p = [player1, player2]
     g1 = Game(p, big_blind=20, small_blind=10)
-    #print(g1.play_game())
+    print(g1.play_game())
 

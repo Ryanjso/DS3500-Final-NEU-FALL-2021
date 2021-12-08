@@ -28,20 +28,20 @@ class Engine:
 
         while counter < runs:
 
-            # print('============================')
-            # print('Game ' + str(counter) + ' Started')
+            print('============================')
+            print('Game ' + str(counter) + ' Started')
 
             # Make sure there are 2 players with > 0 chips
             self.top_up_players()
 
-            # print(f'Players in this game-> {self.table.get_players()}')
+            print(f'Players in this game-> {self.table.get_players()}')
 
             self.table.new_game()
 
             # rotate big and small blind
             self.table.rotate_blinds()
 
-            # print('Game ' + str(counter) + ' Over')
+            print('Game ' + str(counter) + ' Over')
 
             counter += 1
 
@@ -56,7 +56,7 @@ class Engine:
                                            for i in range(6))
                 new_player = Player(500, name, ai=True)
                 self.table.sit(new_player)
-                #print('=============sitting new')
+                print('=============sitting new')
 
             # Max chips someone can have is 1000
             if players[i].get_stack() > 1000:

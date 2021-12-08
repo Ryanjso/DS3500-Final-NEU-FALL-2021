@@ -70,9 +70,9 @@ class Player:
     def show_cards(self):
         """ Prints the cards to the console """
         hand = [card.to_treys() for card in self.cards]
-        #print(f"{self.username} current cards:")
-        #cd.#print_pretty_cards(hand)
-        #print(self.cards)
+        print(f"{self.username} current cards:")
+        cd.print_pretty_cards(hand)
+        print(self.cards)
 
     def is_active(self):
         """ Check if player is active  """
@@ -138,11 +138,11 @@ class Player:
 
         # Evaluate the score and the corresponding score class
         evaluator = Evaluator()
-        #print(f'{self.username} {table_cards} {self.cards}')
+        print(f'{self.username} {table_cards} {self.cards}')
         score = evaluator.evaluate(board, hand)
         score_class = evaluator.get_rank_class(score)
-        #print(
-        #    f"{self.username} best hand rank: {evaluator.class_to_string(score_class)}")
+        print(
+            f"{self.username} best hand rank: {evaluator.class_to_string(score_class)}")
         return score
 
     def clear_hand(self):
@@ -158,4 +158,4 @@ if __name__ == "__main__":
     c2 = Card('d', '3')
     table_cards = [Card('h', '2'), Card('c', '2'), Card('s', 'A')]
     p.cards = [c1, c2]
-    #print(p.current_hand(table_cards))
+    print(p.current_hand(table_cards))
