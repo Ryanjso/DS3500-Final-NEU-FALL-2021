@@ -27,7 +27,6 @@ class Engine:
         counter = 0
 
         while counter < runs:
-            print(counter)
 
             # print('============================')
             # print('Game ' + str(counter) + ' Started')
