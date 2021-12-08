@@ -2,15 +2,39 @@ from engine import Engine
 from engine import Train_engine
 from table import Table
 from player import Player
+from game import update_prob, Game
+import json
 
 
 def main():
+    # f = open('cfr.json')
+    # load = json.load(f)
+    # update_prob(load)
+    #
+    # print("TESTING LOAD")
+    # for x in load:
+    #     print(x, " : ", load[x])
+
+    print("\nPROBBBBBBB*************")
+    for x in Game.probability_dict:
+        print(x, " : ", Game.probability_dict[x])
 
     poker = Train_engine()
-    poker.go(100)
+    poker.go(50000)
+    poker.table.current_game.convert_totals()
+
+    data = poker.table.current_game.regrets_dict
     print("\nFINAL*************")
-    for x in poker.table.current_game.regrets_dict:
-        print(x, " : ", poker.table.current_game.regrets_dict[x])
+    for x in data:
+        print(x, " : ", data[x])
+
+    cfr_scores = open("cfr.json", "w")
+    cfr_scores = json.dump(data, cfr_scores)
+
+    update_prob(data)
+    print("\nPROBBBBBBB*************")
+    for x in Game.probability_dict:
+        print(x, " : ", Game.probability_dict[x])
 
     # player1, player2 = None, None
     #

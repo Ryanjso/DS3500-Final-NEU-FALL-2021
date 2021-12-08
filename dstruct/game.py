@@ -5,7 +5,25 @@ import random
 from typing import List
 from visualizer import Visualizer
 
+
+def update_prob(data):
+    for x in data:
+        Game.probability_dict[x] = data[x]
+
 class Game:
+    probability_dict = {
+        "royal flush": [0.33, 0.33, 0.33],
+        "straight flush": [0.33, 0.33, 0.33],
+        "four of a kind": [0.33, 0.33, 0.33],
+        "full house": [0.33, 0.33, 0.33],
+        "flush": [0.33, 0.33, 0.33],
+        "straight": [0.33, 0.33, 0.33],
+        "three of a kind": [0.33, 0.33, 0.33],
+        "two pair": [0.33, 0.33, 0.33],
+        "pair": [0.33, 0.33, 0.33],
+        "high card": [0.33, 0.33, 0.33],
+        "default": [0.33, 0.33, 0.33]
+    }
 
     def __init__(self, players, big_blind=20, small_blind=10):
         # List of players in this game
@@ -37,8 +55,8 @@ class Game:
 
         self._ready_players()
 
-    #def get_players(self):
-        #print(self.players)
+    def get_players(self):
+        print(self.players)
 
     def _ready_players(self):
         for player in self.players:
@@ -258,7 +276,8 @@ class Game:
                 return choice, None
 
         else:
-            weights = (20, 65, 15)
+            hand = p.hand_name_rank(self.community_cards)
+            weights = self.probability_dict[hand]
             choice = random.choices(options, weights, k=1)[0]
 
             if choice == "fold" and self.bet - self.get_current_player().get_bet() == 0:

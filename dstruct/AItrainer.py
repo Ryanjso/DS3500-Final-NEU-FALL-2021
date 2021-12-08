@@ -41,8 +41,6 @@ class Trainer(Game):
 
     def __init__(self, players, big_blind=20, small_blind=10):
         super().__init__(players, big_blind, small_blind)
-        self.reward = 0
-        self.counterfactual = 0
 
     def best_hand(self):
         player1_score = self.players[0].best_hand(self.community_cards)
@@ -73,13 +71,12 @@ class Trainer(Game):
 
                 if winner.ai:
                     hand = winner.hand_name_rank(self.community_cards)
-                    self.reward += prize
 
                     # The regret score of winning is not betting more
-                    self.regrets_dict[hand][1] += (self.big_blind - self.reward)
+                    self.regrets_dict[hand][1] += ((prize/2) + self.big_blind)
 
                     # If you raise and win, you have no regrets
-                    self.regrets_dict[hand][2] = 0
+                    self.regrets_dict[hand][2] += (self.big_blind + prize)
 
             #loser is a list of the losing player (always either 1 player or 0 players)
             losers = self.best_hand()["loser"]
@@ -90,17 +87,13 @@ class Trainer(Game):
                 if loser.ai:
                     hand = loser.hand_name_rank(self.community_cards)
 
-                    self.reward -= prize
-
                     # Regret for not folding is the reward lost
-                    self.regrets_dict[hand][0] += (prize - self.reward)
+                    self.regrets_dict[hand][0] += (self.big_blind + prize)
                     # Regret for calling is the buy-in
-                    self.regrets_dict[hand][1] += (self.big_blind - self.reward)
+                    self.regrets_dict[hand][1] += (self.big_blind + (prize/4))
                     # Regret for raising is the bet amount - the reward (the pot)
-                    self.regrets_dict[hand][2] += (self.pot)
 
-        # Reset the reward and pot for the next game
-        self.reward = 0
+        # Reset the pot for the next game
         self.pot = 0
 
     def play_game(self):
@@ -113,8 +106,6 @@ class Trainer(Game):
 
         while not self.game_over:
             self.set_blinds()
-
-            reward = 0
 
             #print("Big Blind: ", self.players[0].username)
             #print("Small Blind: ", self.players[1].username)
@@ -142,7 +133,6 @@ class Trainer(Game):
         #print("Final stats")
         #for x in self.players:
             #print("name: ", x.username, "stack: ", x.get_stack())
-        self.convert_totals()
 
 
     def convert_totals(self):

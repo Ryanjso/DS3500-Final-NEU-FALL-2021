@@ -88,21 +88,23 @@ class Player:
 
     def hand_name_rank(self, table_cards):
         """ Get a user's hand class """
+        try:
+            # Convert hand to be compatible with treys
+            hand = [card.to_treys() for card in self.cards]
 
-        # Convert hand to be compatible with treys
-        hand = [card.to_treys() for card in self.cards]
+            # Convert board to be compatible with treys
+            board = [card.to_treys() for card in table_cards]
 
-        # Convert board to be compatible with treys
-        board = [card.to_treys() for card in table_cards]
+            # Evaluate the score and the corresponding score class
+            evaluator = Evaluator()
 
-        # Evaluate the score and the corresponding score class
-        evaluator = Evaluator()
-
-        # Return hand class (ex: Royal Flush, Three of a Kind)
-        score = evaluator.evaluate(board, hand)
-        hand_class = evaluator.get_rank_class(score)
-        hand_class = evaluator.class_to_string(hand_class)
-        return hand_class.lower()
+            # Return hand class (ex: Royal Flush, Three of a Kind)
+            score = evaluator.evaluate(board, hand)
+            hand_class = evaluator.get_rank_class(score)
+            hand_class = evaluator.class_to_string(hand_class)
+            return hand_class.lower()
+        except Exception:
+            return "default"
 
     def hand_rank(self, table_cards):
         """ Get the user's current hand percentage rank"""
