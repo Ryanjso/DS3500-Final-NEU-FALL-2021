@@ -7,6 +7,8 @@ import json
 
 
 def main():
+    #TODO i think treys doesnt return royal flush so might have to delete that from the dictionary
+    #TODO uncomment all the print statements
     f = open('cfr.json')
     load = json.load(f)
     update_prob(load)
