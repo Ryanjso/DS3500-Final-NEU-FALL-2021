@@ -6,7 +6,7 @@ from player import Player
 
 def main():
 
-    poker = Engine()
+    poker = Train_engine()
     poker.go(100)
     print("\nFINAL*************")
     for x in poker.table.current_game.regrets_dict:
