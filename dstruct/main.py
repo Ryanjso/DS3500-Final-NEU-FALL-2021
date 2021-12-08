@@ -7,20 +7,20 @@ import json
 
 
 def main():
-    # f = open('cfr.json')
-    # load = json.load(f)
-    # update_prob(load)
-    #
-    # print("TESTING LOAD")
-    # for x in load:
-    #     print(x, " : ", load[x])
+    f = open('cfr.json')
+    load = json.load(f)
+    update_prob(load)
+
+    print("TESTING LOAD")
+    for x in load:
+        print(x, " : ", load[x])
 
     print("\nPROBBBBBBB*************")
     for x in Game.probability_dict:
         print(x, " : ", Game.probability_dict[x])
 
     poker = Train_engine()
-    poker.go(50000)
+    poker.go(1000000)
     poker.table.current_game.convert_totals()
 
     data = poker.table.current_game.regrets_dict
