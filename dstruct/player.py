@@ -71,7 +71,7 @@ class Player:
         """ Prints the cards to the console """
         hand = [card.to_treys() for card in self.cards]
         #print(f"{self.username} current cards:")
-        #cd.print_pretty_cards(hand)
+        #cd.#print_pretty_cards(hand)
         #print(self.cards)
 
     def is_active(self):
@@ -86,14 +86,41 @@ class Player:
         """ Make a player inactive """
         self.active = False
 
-    def current_hand(self, table_cards):
+    def hand_name_rank(self, table_cards):
+        """ Get a user's hand class """
+
+        # Convert hand to be compatible with treys
         hand = [card.to_treys() for card in self.cards]
+
+        # Convert board to be compatible with treys
         board = [card.to_treys() for card in table_cards]
 
+        # Evaluate the score and the corresponding score class
         evaluator = Evaluator()
+
+        # Return hand class (ex: Royal Flush, Three of a Kind)
         score = evaluator.evaluate(board, hand)
-        score_class = evaluator.get_rank_class(score)
-        return evaluator.class_to_string(score_class)
+        hand_class = evaluator.get_rank_class(score)
+        hand_class = evaluator.class_to_string(hand_class)
+        return hand_class.lower()
+
+    def hand_rank(self, table_cards):
+        """ Get the user's current hand percentage rank"""
+
+        # Convert hand to be compatible with treys
+        hand = [card.to_treys() for card in self.cards]
+
+        # Convert board to be compatible with treys
+        board = [card.to_treys() for card in table_cards]
+
+        # Evaluate the score and the corresponding score class
+        evaluator = Evaluator()
+
+        # Get the hand rank
+        score = evaluator.evaluate(board, hand)
+        rank = 1.0 - float(score) / 7462
+        return rank
+
 
     def best_hand(self, table_cards):
         """ Get the Best Hand """
@@ -109,7 +136,7 @@ class Player:
 
         # Evaluate the score and the corresponding score class
         evaluator = Evaluator()
-        #print(f'{self.username} {board} {hand}')
+        #print(f'{self.username} {table_cards} {self.cards}')
         score = evaluator.evaluate(board, hand)
         score_class = evaluator.get_rank_class(score)
         #print(
@@ -129,4 +156,4 @@ if __name__ == "__main__":
     c2 = Card('d', '3')
     table_cards = [Card('h', '2'), Card('c', '2'), Card('s', 'A')]
     p.cards = [c1, c2]
-    print(p.current_hand(table_cards))
+    #print(p.current_hand(table_cards))

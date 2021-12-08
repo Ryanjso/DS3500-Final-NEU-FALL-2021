@@ -27,16 +27,16 @@ class Trainer(Game):
 
     # Values --> [Fold, Call, Raise] (Regret values)
     regrets_dict = {
-        "Royal Flush": [0,0,0],
-        "Straight Flush": [0,0,0],
-        "Four of a Kind": [0,0,0],
-        "Full House": [0,0,0],
-        "Flush": [0,0,0],
-        "Straight": [0,0,0],
-        "Three of a Kind": [0,0,0],
-        "Two Pair": [0,0,0],
-        "Pair": [0,0,0],
-        "High Card": [0,0,0]
+        "royal flush": [0,0,0],
+        "straight flush": [0,0,0],
+        "four of a kind": [0,0,0],
+        "full house": [0,0,0],
+        "flush": [0,0,0],
+        "straight": [0,0,0],
+        "three of a kind": [0,0,0],
+        "two pair": [0,0,0],
+        "pair": [0,0,0],
+        "high card": [0,0,0]
     }
 
     def __init__(self, players, big_blind=20, small_blind=10):
@@ -72,7 +72,7 @@ class Trainer(Game):
                 #print(f'{winner.username} won {prize} chips')
 
                 if winner.ai:
-                    hand = winner.current_hand(self.community_cards)
+                    hand = winner.hand_name_rank(self.community_cards)
                     self.reward += prize
 
                     # The regret score of winning is not betting more
@@ -88,7 +88,7 @@ class Trainer(Game):
             if losers:
                 loser = losers[0]
                 if loser.ai:
-                    hand = loser.current_hand(self.community_cards)
+                    hand = loser.hand_name_rank(self.community_cards)
 
                     self.reward -= prize
 

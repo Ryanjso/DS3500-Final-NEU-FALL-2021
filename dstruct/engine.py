@@ -27,21 +27,22 @@ class Engine:
         counter = 0
 
         while counter < runs:
+            print(counter)
 
-            print('============================')
-            print('Game ' + str(counter) + ' Started')
+            # print('============================')
+            # print('Game ' + str(counter) + ' Started')
 
             # Make sure there are 2 players with > 0 chips
             self.top_up_players()
 
-            print(f'Players in this game-> {self.table.get_players()}')
+            # print(f'Players in this game-> {self.table.get_players()}')
 
             self.table.new_game()
 
             # rotate big and small blind
             self.table.rotate_blinds()
 
-            print('Game ' + str(counter) + ' Over')
+            # print('Game ' + str(counter) + ' Over')
 
             counter += 1
 
@@ -91,7 +92,6 @@ class Train_engine(Engine):
 
             # rotate big and small blind
             self.table.rotate_blinds()
-
             if counter % 5000 == 0:
                 print("\nRun # :", counter)
                 for x in self.table.current_game.regrets_dict:

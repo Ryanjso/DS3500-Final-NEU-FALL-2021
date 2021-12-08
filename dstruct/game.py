@@ -3,6 +3,7 @@ from card import Card
 from player import Player
 import random
 from typing import List
+from visualizer import Visualizer
 
 class Game:
 
@@ -28,6 +29,11 @@ class Game:
         self.game_over: bool = False
         # The current bet amount for the table
         self.bet = self.big_blind
+        # store data to visualize the hand percentage ranks
+        self.visualizer: Visualizer = Visualizer()
+        # Turn on / off the visualization functionality
+        self.visualizer.on = False
+        # start poker ai
 
         self._ready_players()
 
@@ -38,6 +44,7 @@ class Game:
         for player in self.players:
             player.clear_hand()
             player.make_active()
+            self.visualizer.add_player(player.username)
 
     def set_blinds(self):
         """ Set the small and big blinds """
@@ -80,6 +87,11 @@ class Game:
         #print('Dealing Community Cards')
 
         self.community_cards += self.deck.draw(number)
+
+        for player in self.players:
+            username, score = player.username, player.hand_rank(self.community_cards)
+            self.visualizer.add_value(username, score)
+
         #print(self.community_cards)
 
     def get_current_player(self) -> Player:
@@ -199,6 +211,9 @@ class Game:
                 winner.add_chips(prize)
                 #print(f'{winner.username} won {prize} chips')
 
+            # Visualize the plot if nobody folded
+            self.visualizer.probability_plot()
+
         self.pot = 0
 
     def post_game_cleanup(self):
@@ -273,10 +288,12 @@ class Game:
 
             p = self.get_current_player()
 
-            #print('current bet for each player:')
-            #for player in self.players:
-                #print(f'{player.username}\'s bet is {player.get_bet()}')
-            #print(f"turn: {p.username}")
+            # print('current bet for each player:')
+            # for player in self.players:
+            #     print(f'{player.username}\'s bet is {player.get_bet()}')
+            # print(f"pot is {self.pot}")
+            # print(f"turn: {p.username}\n")
+
 
             choice = self._get_choice()
             option = choice[0]
