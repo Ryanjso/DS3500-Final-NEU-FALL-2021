@@ -1,3 +1,17 @@
+# How to run
+
+### Install
+
+```bash
+$ pip install treys
+```
+
+navigate to [`dstruct`](https://github.com/Ryanjso/DS3500-Final-NEU-FALL-2021/tree/main/dstruct) and run:
+
+```bash
+$ python3 main.py
+```
+
 # Project Proposal
 
 ### Motivation 
