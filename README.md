@@ -29,9 +29,9 @@ We hope to create an AI powerful enough to beat a professional poker player. Our
 
 ### Data Sources 
 
-Our project will utilize counterfactual regret minimization to improve performance. Effectively, it will play against itself over millions of games instead of using training and test data. One possible limitation is the amount of compute-power required for the algorithm to simulate millions or even billions of poker games, and calculate regret scores. Because CRF appears to be similar to evolutionary computing in the sense that millions of generated candidate strategies are evaluated to reach an optimal solution, we anticipate that Professor Rachlin may be able to advise us on how to overcome this challenge.
+Our project will utilize counterfactual regret minimization to improve performance. Effectively, it will play against itself over millions of games instead of using training and test data. One possible limitation is the amount of compute-power required for the algorithm to simulate millions or even billions of poker games, and calculate regret scores. 
 Texas Hold’em Rules: https://www.pokernews.com/poker-rules/texas-holdem.htm
 
 ### Platform Architecture
 
-This project will use Object Oriented Programming in order to build out the functionality for creating users, cards, game decks, players, and poker tables, and a Poker AI. In addition, we will connect this with a React/Javascript frontend in order for the user to interact with the previously mentioned functionality. We hope to create a platform where a player can play 1 vs 1 Texas Hold Em Poker with the AI that we develop.
+This project will use Object Oriented Programming in order to build out the functionality for creating users, cards, game decks, players, and poker tables, and a Poker AI. We have created a platform where a player can play 1 vs 1 Texas Hold Em Poker with the AI that we develop in the Python console.
