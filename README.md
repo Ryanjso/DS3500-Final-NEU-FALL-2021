@@ -2,9 +2,13 @@
 
 ### Install
 
+This project uses [treys](https://github.com/ihendley/treys) to evaluate hand ranks
 ```bash
 $ pip install treys
 ```
+
+
+&nbsp;
 
 navigate to [`dstruct`](https://github.com/Ryanjso/DS3500-Final-NEU-FALL-2021/tree/main/dstruct) and run:
 
